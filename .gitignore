@@ -1,0 +1,9 @@
+# ไม่เผยแพร่สกิลส่วนตัว (ใช้ทำงานเฉพาะของผู้ใช้)
+personal-skills/
+
+# ไฟล์ระบบ
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.pyc
