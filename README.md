@@ -5,7 +5,7 @@
 <h1 align="center">Claude Canfly Skills</h1>
 
 <p align="center">
-  คลังสกิล (Skills) สำหรับ Claude และ Claude Code — รวม <b>142 สกิลพร้อมใช้งาน</b><br>
+  คลังสกิล (Skills) สำหรับ Claude และ Claude Code — รวม <b>217 สกิลพร้อมใช้งาน</b><br>
   จัดเป็นโครงสร้างมาตรฐาน ติดตั้งเป็น <code>/slash command</code> ได้ทันที
 </p>
 
@@ -34,7 +34,8 @@
 | B | `pro-bundle/` | Pro Bundle 17 หมวดสากล: คอนเทนต์ การตลาด การขาย การเงิน กฎหมาย ปฏิบัติการ ฯลฯ | 69 |
 | C | `commands/` | คำสั่งลัด Claude — Output modes + Career/Job help | 20 |
 | D | `jobsdb-ai-skills/` | งานที่ AI ทำแทนได้ อิงตำแหน่งงานยอดนิยมบน JobsDB พร้อมระบุส่วนที่ยังต้องใช้คน | 19 |
-| — | `standard/` | สกิลทั้งหมดในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้ง | 142 |
+| E | `people-skills/` | วิธี deal กับคนแต่ละ type — MBTI 16 · DISC 4 · Enneagram 9 · CliftonStrengths 34 · ราศี 12 | 75 |
+| — | `standard/` | สกิลทั้งหมดในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้ง | 217 |
 
 ---
 
@@ -44,6 +45,16 @@
 ทำให้โฟลเดอร์ `standard/` มีเฉพาะเนื้อหาจริง 142 สกิล ไม่มีตัวซ้ำและไม่มี slug ชนกัน
 
 ตัวอย่างที่รวม: สรุปประชุม, เขียน JD, ตอบอีเมล, ร่างสัญญา, เขียนบล็อก, ผลิต Ad copy, วิเคราะห์สต็อก
+
+---
+
+## ข้อควรระวังเรื่องบุคลิกภาพ (ชุด E)
+
+ชุด People Skills มีไว้เพื่อ "เข้าใจและทำงานร่วมกับคนได้ดีขึ้นอย่างเคารพ" ไม่ใช่เพื่อบงการหรือชี้นำผู้อื่น
+
+- type เป็นแนวโน้ม ไม่ใช่กล่องตายตัว — คนจริงมีหลายมิติ ควรยืนยันด้วยการสังเกตและพูดคุยจริง อย่าเดาเหมารวมหรือตีตรา
+- เครื่องมืออย่าง MBTI / DISC ควรทำแบบประเมินอย่างเป็นทางการเพื่อความแม่นยำ
+- ราศี (Zodiac) เป็นความเชื่อเชิงวัฒนธรรม ไม่มีหลักฐานทางวิทยาศาสตร์ ใช้เพื่อสร้างบทสนทนา/ความสัมพันธ์เท่านั้น
 
 ---
 
@@ -81,7 +92,8 @@ claude-canfly-skill/
   pro-bundle/             ชุด B (17 หมวด)
   commands/               ชุด C (คำสั่งลัด)
   jobsdb-ai-skills/       ชุด D (งานที่ AI ทำแทนได้)
-  standard/               142 สกิล รูปแบบมาตรฐาน <slug>/SKILL.md
+  people-skills/          ชุด E (วิธี deal กับคนแต่ละ type)
+  standard/               217 สกิล รูปแบบมาตรฐาน <slug>/SKILL.md
   *.md (ที่ราก)           ชุด A (อาชีพ_skill ภาษาไทย)
   _make_*.py              สคริปต์สร้าง/รวมไฟล์ใหม่ได้
 ```
@@ -96,6 +108,7 @@ claude-canfly-skill/
 python _make_pro_bundle.py        # สร้างชุด B
 python _make_commands.py          # สร้างชุด C
 python _make_jobsdb_ai_skills.py  # สร้างชุด D
+python _make_people_skills.py     # สร้างชุด E
 python _make_standard.py          # รวมทุกชุดเป็นรูปแบบมาตรฐาน
 python _make_graphics.py          # สร้างกราฟิก banner/structure
 ```

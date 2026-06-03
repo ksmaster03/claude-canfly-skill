@@ -110,7 +110,7 @@ def make_banner():
 
     # ซับไตเติลไทย
     center_text(d, W // 2 * S, 330 * S,
-                "คลังสกิล AI สำหรับ Claude — รวม 142 สกิลพร้อมใช้งาน",
+                "คลังสกิล AI สำหรับ Claude — รวม 217 สกิลพร้อมใช้งาน",
                 F_TH_BOLD(30), SOFT)
     # บรรทัดล่าง
     center_text(d, W // 2 * S, 392 * S,
@@ -125,7 +125,7 @@ def make_banner():
 
 # ---------------------------------------------------------------- STRUCTURE
 def make_structure():
-    W, H = 1280, 770
+    W, H = 1280, 880
     img = Image.new("RGB", (W * S, H * S), BG)
     d = ImageDraw.Draw(img)
 
@@ -134,7 +134,7 @@ def make_structure():
     draw_flag(img, 60, 34, 72, 48)
     d = ImageDraw.Draw(img)
     d.text((156 * S, 30 * S), "โครงสร้างคลังสกิล Claude Canfly", font=F_TH_BOLD(34), fill=WHITE)
-    d.text((156 * S, 74 * S), "142 สกิลพร้อมใช้  ·  4 ชุดเนื้อหา  ·  รวมตัวซ้ำแล้ว",
+    d.text((156 * S, 74 * S), "217 สกิลพร้อมใช้  ·  5 ชุดเนื้อหา  ·  รวมตัวซ้ำแล้ว",
            font=F_TH(20), fill=(180, 198, 235))
 
     cards = [
@@ -174,8 +174,28 @@ def make_structure():
         sw = d.textlength("สกิล", font=F_TH(17))
         d.text(((x + cw - 28) * S - nw - 14 * S - sw, (y + 112) * S), "สกิล", font=F_TH(17), fill=GRAY)
 
-    # การ์ด standard เต็มความกว้าง
-    y = top + 2 * (ch + gap)
+    # การ์ด E — People Skills (เต็มความกว้าง สีขาว)
+    ey = top + 2 * (ch + gap)
+    eh = 112
+    d.rounded_rectangle([mx * S, (ey + 4) * S, (W - mx) * S, (ey + eh + 6) * S],
+                        radius=16 * S, fill=(226, 232, 242))
+    rounded(d, [mx, ey, W - mx, ey + eh], 16, fill=WHITE, outline=LGRAY, width=2)
+    d.rounded_rectangle([mx * S, ey * S, (mx + 10) * S, (ey + eh) * S], radius=5 * S, fill=NAVY)
+    rounded(d, [mx + 28, ey + 30, mx + 80, ey + 82], 12, fill=NAVY)
+    center_text(d, (mx + 54) * S, (ey + 38) * S, "E", F_DISPLAY(28), WHITE)
+    d.text(((mx + 102) * S, (ey + 28) * S), "People Skills — วิธี deal กับคนแต่ละ type",
+           font=F_TH_BOLD(25), fill=INK)
+    d.text(((mx + 102) * S, (ey + 68) * S),
+           "MBTI 16  ·  DISC 4  ·  Enneagram 9  ·  CliftonStrengths 34  ·  ราศี 12",
+           font=F_TH(17), fill=GRAY)
+    nf = F_DISPLAY(40)
+    nw = d.textlength("75", font=nf)
+    d.text(((W - mx - 30) * S - nw, (ey + 36) * S), "75", font=nf, fill=RED)
+    sw = d.textlength("สกิล", font=F_TH(17))
+    d.text(((W - mx - 30) * S - nw - 14 * S - sw, (ey + 52) * S), "สกิล", font=F_TH(17), fill=GRAY)
+
+    # การ์ด standard เต็มความกว้าง (navy)
+    y = ey + eh + gap
     d.rounded_rectangle([mx * S, (y + 4) * S, (W - mx) * S, (y + 134) * S],
                         radius=16 * S, fill=(210, 218, 232))
     rounded(d, [mx, y, W - mx, y + 128], 16, fill=NAVY)
@@ -187,8 +207,8 @@ def make_structure():
            "ทุกสกิลในรูป <slug>/SKILL.md  ·  คัดลอกเข้า ~/.claude/skills ใช้งานทันที",
            font=F_TH(18), fill=(180, 198, 235))
     nf = F_DISPLAY(50)
-    nw = d.textlength("142", font=nf)
-    d.text(((W - mx - 40) * S - nw, (y + 38) * S), "142", font=nf, fill=WHITE)
+    nw = d.textlength("217", font=nf)
+    d.text(((W - mx - 40) * S - nw, (y + 38) * S), "217", font=nf, fill=WHITE)
 
     img = img.resize((W, H), Image.LANCZOS)
     img.save(os.path.join(ASSETS, "structure.png"))
