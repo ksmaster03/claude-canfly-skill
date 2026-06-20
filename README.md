@@ -5,7 +5,7 @@
 <h1 align="center">Claude Canfly Skills</h1>
 
 <p align="center">
-  คลังสกิลสำหรับ Claude และ Claude Code รวม <b>217 สกิลพร้อมใช้งาน</b><br>
+  คลังสกิลสำหรับ Claude และ Claude Code รวม <b>233 สกิลพร้อมใช้งาน</b><br>
   จัดระเบียบเป็นโครงสร้างมาตรฐาน พร้อมติดตั้งเป็น <code>/slash command</code> ได้ทันที
 </p>
 
@@ -42,7 +42,8 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 | C   | `commands/`         | คำสั่งลัดสำหรับ Claude ครอบคลุม Output Modes และตัวช่วยด้านอาชีพ/การสมัครงาน                                                           | 20    |
 | D   | `jobsdb-ai-skills/` | สกิลที่อธิบายว่างานใดบ้างที่ AI สามารถช่วยทำแทนได้ อ้างอิงจากตำแหน่งงานยอดนิยมบน JobsDB พร้อมระบุส่วนที่ยังต้องใช้มนุษย์               | 19    |
 | E   | `people-skills/`    | สกิลสำหรับเข้าใจและทำงานร่วมกับคนแต่ละประเภท ครอบคลุม MBTI 16 แบบ, DISC 4 แบบ, Enneagram 9 แบบ, CliftonStrengths 34 แบบ และราศี 12 แบบ | 75    |
-| —   | `standard/`         | สกิลทั้งหมดในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้งใช้งาน                                                                        | 217   |
+| F   | `sdlc-skills/`      | พัฒนาซอฟต์แวร์ครบวงจรแบบ SDLC + Agile — ตัวขับเคลื่อน `/sdlc-agile` 1 ตัว + sub-skill รายเฟส (requirement, FR/NFR, business logic, design, auth/SoD, threat model, dev, test, regression, security test, pen test, deploy, monitoring) | 16    |
+| —   | `standard/`         | สกิลทั้งหมดในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้งใช้งาน                                                                        | 233   |
 
 ---
 
@@ -66,6 +67,34 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 * ไม่ควรใช้ type เพื่อเดา ตีตรา หรือเหมารวมผู้อื่น ควรใช้ร่วมกับการสังเกต การพูดคุย และการรับฟังจริง
 * เครื่องมืออย่าง MBTI และ DISC ควรใช้แบบประเมินอย่างเป็นทางการ หากต้องการความแม่นยำมากขึ้น
 * ราศีหรือ Zodiac เป็นความเชื่อเชิงวัฒนธรรม ไม่ใช่หลักฐานทางวิทยาศาสตร์ เหมาะสำหรับใช้เป็นมุมสร้างบทสนทนา ความสัมพันธ์ หรือไอเดียเชิงสร้างสรรค์เท่านั้น
+
+---
+
+## ชุด F · พัฒนาซอฟต์แวร์ครบวงจร (SDLC & Agile)
+
+ชุดสำหรับสายพัฒนาซอฟต์แวร์โดยเฉพาะ — พาทำงานตั้งแต่ **เก็บ requirement จนถึง monitoring บน production** อย่างเป็นระบบ มี artifact และ quality gate ทุกเฟส เนื้อหาเป็นภาษาไทยผสมศัพท์เทคนิคอังกฤษ ใช้ได้จริงระดับมืออาชีพ
+
+ตัวขับเคลื่อนหลักคือ **`/sdlc-agile`** ที่ map ทั้ง lifecycle, จัด quality gate (G0–G6), ทำ traceability (req → design → code → test → release) แล้ว delegate ไปยัง sub-skill รายเฟส 15 ตัว:
+
+| เฟส | สกิล | ได้อะไร |
+| --- | --- | --- |
+| Agile framework | `/agile-delivery` | Scrum/Kanban, ceremonies, backlog, DoR/DoD, velocity |
+| เก็บ requirement | `/req-discovery` | stakeholder map, user story, MoSCoW, acceptance criteria |
+| FR & NFR | `/fr-nfr-spec` | SRS — FR มี ID + NFR ที่วัดผลได้ |
+| Business logic | `/business-logic-spec` | decision table, state machine, business rules |
+| ออกแบบสถาปัตยกรรม | `/solution-design` | C4, ADR, data model (ERD), API contract |
+| Authentication/Authorization | `/authn-authz-design` | AuthN flow, RBAC/ABAC, session/JWT, MFA |
+| Segregation of Duties | `/sod-matrix` | role×permission matrix, conflict rules, access review |
+| Threat modeling | `/threat-model` | STRIDE/DFD, abuse case, security requirements |
+| มาตรฐาน dev | `/dev-standards` | coding standard, branching, code review, DoD |
+| กลยุทธ์ทดสอบ | `/test-strategy` | test pyramid, test plan, coverage, test case |
+| Regression | `/regression-suite` | impact analysis, regression/non-regression, automation |
+| Security testing | `/security-testing` | SAST/DAST/SCA, OWASP ASVS, triage CVSS |
+| Penetration testing | `/pentest-plan` | scope/RoE, PTES/OWASP, finding report, retest |
+| Deployment & Release | `/release-deploy` | CI/CD, blue-green/canary, rollback, change mgmt |
+| Monitoring | `/observability` | logs/metrics/traces, SLI/SLO, alerting, incident runbook |
+
+เริ่มใช้: พิมพ์ `/sdlc-agile` แล้วบอกว่าจะทำระบบอะไร — มันจะปรับความหนักเบาให้พอดีกับงาน (right-sizing) แล้วไล่ทีละเฟส หรือจะเรียกเฉพาะเฟสที่ต้องการตรง ๆ เช่น `/threat-model` ก็ได้
 
 ---
 
@@ -97,7 +126,7 @@ Copy-Item "standard\blog-post" "$env:USERPROFILE\.claude\skills\" -Recurse -Forc
 
 ## เครื่องมือดูแลคลัง (Meta skills)
 
-นอกจากสกิลเนื้อหา 217 ตัว มีเครื่องมือ 2 ตัวที่ทำให้คลังใช้ง่ายและเติบโตเอง:
+นอกจากสกิลเนื้อหา 233 ตัว มีเครื่องมือ 2 ตัวที่ทำให้คลังใช้ง่ายและเติบโตเอง:
 
 ### /skill-router — เลือกสกิลอัตโนมัติจากประโยคสนทนา
 ไม่ต้องจำชื่อสกิลทั้งหมด แค่พิมพ์งานแบบธรรมชาติ เช่น "ช่วยเขียนบทความเรื่อง..." หรือ "ร่างสัญญาจ้างให้หน่อย"
@@ -120,10 +149,11 @@ claude-canfly-skill/
   commands/               ชุด C: คำสั่งลัดสำหรับ Claude
   jobsdb-ai-skills/       ชุด D: สกิลเกี่ยวกับงานที่ AI สามารถช่วยทำแทนได้
   people-skills/          ชุด E: สกิลสำหรับเข้าใจและทำงานกับคนแต่ละประเภท
+  sdlc-skills/            ชุด F: พัฒนาซอฟต์แวร์ครบวงจร SDLC + Agile (/sdlc-agile + รายเฟส)
   skill-router/           เครื่องมือ: เลือกสกิลจากประโยคสนทนา
   skill-scout/            เครื่องมือ: หา ศึกษา และเติมสกิลจาก GitHub
   skill-catalog.md        ดัชนีสกิลทั้งหมด (router/scout ใช้แมตช์)
-  standard/               สกิลทั้งหมด 217 รายการ + เครื่องมือ 2 ตัว ในรูปแบบมาตรฐาน <slug>/SKILL.md
+  standard/               สกิลทั้งหมด 233 รายการ + เครื่องมือ 2 ตัว ในรูปแบบมาตรฐาน <slug>/SKILL.md
   *.md                    ชุด A: สกิลอาชีพภาษาไทยที่อยู่ในรากของโปรเจกต์
   _make_*.py              สคริปต์สำหรับสร้าง รวม และปรับไฟล์ใหม่
 ```
@@ -139,7 +169,8 @@ python _make_pro_bundle.py        # สร้างชุด B
 python _make_commands.py          # สร้างชุด C
 python _make_jobsdb_ai_skills.py  # สร้างชุด D
 python _make_people_skills.py     # สร้างชุด E
-python _make_standard.py          # รวมทุกชุดให้อยู่ในรูปแบบมาตรฐาน
+# ชุด F (sdlc-skills/) เขียนมือเป็นโฟลเดอร์ <slug>/SKILL.md โดยตรง — ไม่มี _make script
+python _make_standard.py          # รวมทุกชุด (รวมชุด F) ให้อยู่ในรูปแบบมาตรฐาน
 python _make_catalog.py           # อัปเดตดัชนีสกิล skill-catalog.md (ให้ router/scout เห็น)
 python _make_graphics.py          # สร้างกราฟิก banner และ structure
 ```

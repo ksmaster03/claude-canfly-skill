@@ -110,7 +110,7 @@ def make_banner():
 
     # ซับไตเติลไทย
     center_text(d, W // 2 * S, 330 * S,
-                "คลังสกิล AI สำหรับ Claude — รวม 217 สกิลพร้อมใช้งาน",
+                "คลังสกิล AI สำหรับ Claude — รวม 233 สกิลพร้อมใช้งาน",
                 F_TH_BOLD(30), SOFT)
     # บรรทัดล่าง
     center_text(d, W // 2 * S, 392 * S,
@@ -125,7 +125,7 @@ def make_banner():
 
 # ---------------------------------------------------------------- STRUCTURE
 def make_structure():
-    W, H = 1280, 880
+    W, H = 1280, 1010
     img = Image.new("RGB", (W * S, H * S), BG)
     d = ImageDraw.Draw(img)
 
@@ -134,7 +134,7 @@ def make_structure():
     draw_flag(img, 60, 34, 72, 48)
     d = ImageDraw.Draw(img)
     d.text((156 * S, 30 * S), "โครงสร้างคลังสกิล Claude Canfly", font=F_TH_BOLD(34), fill=WHITE)
-    d.text((156 * S, 74 * S), "217 สกิลพร้อมใช้  ·  5 ชุดเนื้อหา  ·  รวมตัวซ้ำแล้ว",
+    d.text((156 * S, 74 * S), "233 สกิลพร้อมใช้  ·  6 ชุดเนื้อหา  ·  รวมตัวซ้ำแล้ว",
            font=F_TH(20), fill=(180, 198, 235))
 
     cards = [
@@ -194,8 +194,28 @@ def make_structure():
     sw = d.textlength("สกิล", font=F_TH(17))
     d.text(((W - mx - 30) * S - nw - 14 * S - sw, (ey + 52) * S), "สกิล", font=F_TH(17), fill=GRAY)
 
+    # การ์ด F — SDLC & Agile (เต็มความกว้าง, แถบแดงเน้นสาย dev)
+    fy = ey + eh + gap
+    fh = 112
+    d.rounded_rectangle([mx * S, (fy + 4) * S, (W - mx) * S, (fy + fh + 6) * S],
+                        radius=16 * S, fill=(226, 232, 242))
+    rounded(d, [mx, fy, W - mx, fy + fh], 16, fill=WHITE, outline=LGRAY, width=2)
+    d.rounded_rectangle([mx * S, fy * S, (mx + 10) * S, (fy + fh) * S], radius=5 * S, fill=RED)
+    rounded(d, [mx + 28, fy + 30, mx + 80, fy + 82], 12, fill=RED)
+    center_text(d, (mx + 54) * S, (fy + 38) * S, "F", F_DISPLAY(28), WHITE)
+    d.text(((mx + 102) * S, (fy + 28) * S), "SDLC & Agile — พัฒนาซอฟต์แวร์ครบวงจร",
+           font=F_TH_BOLD(25), fill=INK)
+    d.text(((mx + 102) * S, (fy + 68) * S),
+           "requirement → design → dev → test → security → deploy → monitor",
+           font=F_TH(17), fill=GRAY)
+    nf = F_DISPLAY(40)
+    nw = d.textlength("16", font=nf)
+    d.text(((W - mx - 30) * S - nw, (fy + 36) * S), "16", font=nf, fill=RED)
+    sw = d.textlength("สกิล", font=F_TH(17))
+    d.text(((W - mx - 30) * S - nw - 14 * S - sw, (fy + 52) * S), "สกิล", font=F_TH(17), fill=GRAY)
+
     # การ์ด standard เต็มความกว้าง (navy)
-    y = ey + eh + gap
+    y = fy + fh + gap
     d.rounded_rectangle([mx * S, (y + 4) * S, (W - mx) * S, (y + 134) * S],
                         radius=16 * S, fill=(210, 218, 232))
     rounded(d, [mx, y, W - mx, y + 128], 16, fill=NAVY)
@@ -207,8 +227,8 @@ def make_structure():
            "ทุกสกิลในรูป <slug>/SKILL.md  ·  คัดลอกเข้า ~/.claude/skills ใช้งานทันที",
            font=F_TH(18), fill=(180, 198, 235))
     nf = F_DISPLAY(50)
-    nw = d.textlength("217", font=nf)
-    d.text(((W - mx - 40) * S - nw, (y + 38) * S), "217", font=nf, fill=WHITE)
+    nw = d.textlength("233", font=nf)
+    d.text(((W - mx - 40) * S - nw, (y + 38) * S), "233", font=nf, fill=WHITE)
 
     img = img.resize((W, H), Image.LANCZOS)
     img.save(os.path.join(ASSETS, "structure.png"))

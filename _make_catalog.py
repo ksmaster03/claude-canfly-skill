@@ -31,6 +31,7 @@ def group_of(fm):
     if fw:   return ("E", f"ชุด E · People Skills · {fw}")
     if role: return ("D", f"ชุด D · JobsDB AI · {role}")
     if cat:
+        if cat == "sdlc": return ("F", "ชุด F · SDLC & Agile (Dev)")
         if cat in C_CATS: return ("C", f"ชุด C · คำสั่งลัด · {cat}")
         return ("B", f"ชุด B · Pro Bundle · {cat}")
     if job:  return ("A", "ชุด A · อาชีพ_skill (ไทย)")
@@ -51,7 +52,7 @@ for name in sorted(os.listdir(STD)):
     groups.setdefault((key, label), []).append((slug, short_desc(desc)))
     total += 1
 
-order = ["Z", "A", "B", "C", "D", "E"]
+order = ["Z", "A", "B", "C", "D", "E", "F"]
 lines = [
  "# Skill Catalog — ดัชนีสกิลสำหรับ /skill-router",
  "",

@@ -1,6 +1,6 @@
 # Skill Catalog — ดัชนีสกิลสำหรับ /skill-router
 
-คลังสกิลทั้งหมด 219 ตัว (สร้างอัตโนมัติจาก `standard/` ด้วย `python _make_catalog.py`)
+คลังสกิลทั้งหมด 235 ตัว (สร้างอัตโนมัติจาก `standard/` ด้วย `python _make_catalog.py`)
 ใช้โดย `/skill-router` เพื่อแมตช์ประโยคผู้ใช้กับสกิลที่เกี่ยวข้อง — เลือกจากรายการนี้เท่านั้น ห้ามแต่งชื่อสกิลที่ไม่มี
 
 ## เครื่องมือ (Meta)  (2)
@@ -289,3 +289,21 @@
 - `/zodiac-scorpio` — วิธีเข้าใจ สื่อสาร ทำงาน และรับมือกับคนแบบ ราศีพิจิก (Scorpio) (ราศี (Zodiac))
 - `/zodiac-taurus` — วิธีเข้าใจ สื่อสาร ทำงาน และรับมือกับคนแบบ ราศีพฤษภ (Taurus) (ราศี (Zodiac))
 - `/zodiac-virgo` — วิธีเข้าใจ สื่อสาร ทำงาน และรับมือกับคนแบบ ราศีกันย์ (Virgo) (ราศี (Zodiac))
+
+## ชุด F · SDLC & Agile (Dev)  (16)
+- `/agile-delivery` — สกิลนี้วางกรอบส่งมอบงานแบบ Agile (Scrum/Kanban/Scrumban) — กำหนด roles, artifacts, ceremonies, backlog, DoR/DoD และ metrics (velocity, cycle time, WIP) เป็นเฟส 
+- `/authn-authz-design` — ออกแบบ Authentication (ยืนยันตัวตน: password/MFA/SSO/OAuth2-OIDC, session vs JWT) และ Authorization (กำหนดสิทธิ์: RBAC/ABAC) ให้ปลอดภัยตาม OWASP ASVS — produce 
+- `/business-logic-spec` — ระบุ business logic/business rules ให้ชัดและทดสอบได้ — decision table, state machine, กฎคำนวณ/ตรวจสอบ, edge case — เพื่อให้ dev เขียนตรรกะถูกต้องและตรงเจตนาธุรก
+- `/dev-standards` — วางมาตรฐานการพัฒนาให้ทีม — coding standard/linting, branching strategy (Gitflow/trunk-based), commit convention, code review checklist, secure coding และ Defini
+- `/fr-nfr-spec` — เขียนสเปก requirement เป็นทางการระดับ SRS — Functional Requirements (FR) ที่มี ID ไม่ซ้ำ อะตอมมิก ทดสอบได้ + Non-functional Requirements (NFR) ทุกหมวด (performa
+- `/observability` — วาง monitoring & observability หลัง deploy — สามเสา logs/metrics/traces, นิยาม SLI/SLO + error budget, golden signals, alerting และ incident management + runboo
+- `/pentest-plan` — วางแผนการทดสอบเจาะระบบแบบได้รับอนุญาต (authorized penetration testing) — กำหนด scope + Rules of Engagement, เลือก methodology (PTES/OWASP WSTG/NIST 800-115), จั
+- `/regression-suite` — วางการทดสอบ regression และ non-regression — กันของเดิมพังเมื่อมีการแก้ไข, ทำ change impact analysis, คัดชุด regression แบบ risk-based, วาง automation และ smoke/
+- `/release-deploy` — วาง deployment และ release management ระดับ production — CI/CD pipeline, กลยุทธ์ deploy (rolling/blue-green/canary/feature flag), environment promotion, IaC, ch
+- `/req-discovery` — เก็บและวิเคราะห์ requirement อย่างเป็นระบบ — ระบุ stakeholder, เลือกเทคนิค elicitation, แปลงความต้องการดิบเป็น user story + acceptance criteria แล้วจัดลำดับด้วย
+- `/sdlc-agile` — ตัวขับเคลื่อนการพัฒนาซอฟต์แวร์ครบวงจรแบบ SDLC + Agile ตั้งแต่เก็บ requirement, FR/NFR, business logic, design/architecture, authentication & authorization, Segr
+- `/security-testing` — วางการทดสอบความปลอดภัยแบบอัตโนมัติใน CI/CD (shift-left) — SAST, DAST, SCA (ช่องโหว่ dependency/CVE), secret/IaC/container scanning, ใช้ OWASP ASVS เป็น checklis
+- `/sod-matrix` — ออกแบบ Segregation of Duties (SoD) — แยกหน้าที่ไม่ให้คนคนเดียวคุมครบทั้งธุรกรรมสำคัญ ด้วย role×permission matrix, conflict rules (maker-checker), least privileg
+- `/solution-design` — ออกแบบสถาปัตยกรรมและโซลูชัน — สร้าง C4 diagram, เลือก architecture style, ออกแบบ data model (ERD), API contract, และบันทึก ADR; ครอบคลุมทั้ง HLD และ LLD (archit
+- `/test-strategy` — วางกลยุทธ์และแผนการทดสอบ — test pyramid (unit/integration/e2e), test type/level, coverage target, test data, entry/exit criteria, และเทคนิคออกแบบ test case (bou
+- `/threat-model` — ทำ threat modeling ตั้งแต่ตอนออกแบบ — วาด DFD + trust boundary, ใช้ STRIDE หา threat รายองค์ประกอบ, จัดลำดับความเสี่ยง แล้วแปลงเป็น security requirement + mitig

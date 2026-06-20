@@ -26,7 +26,8 @@ def src_label(rel):
         return "A (อาชีพ_skill)"
     top = rel.split(os.sep)[0]
     return {"pro-bundle": "B (Pro Bundle)", "commands": "C (คำสั่งลัด)",
-            "jobsdb-ai-skills": "D (JobsDB AI)"}.get(top, top)
+            "jobsdb-ai-skills": "D (JobsDB AI)", "people-skills": "E (People Skills)",
+            "sdlc-skills": "F (SDLC & Agile)"}.get(top, top)
 
 count, skipped_merged, collisions = 0, [], []
 used = {}
