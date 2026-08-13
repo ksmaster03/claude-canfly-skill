@@ -1,0 +1,21 @@
+{
+  "name": "kosin-series",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "โกสินทร์ — ซีรีส์คลิป AI mindset 8 ตัว, ซ้าย-ขวาบนเส้นพื้นเดียว, 6-9 วินาที, วนลูปได้",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:all": "node tools/render-all.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.486",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.486"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}
