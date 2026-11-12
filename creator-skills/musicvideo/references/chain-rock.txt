@@ -1,0 +1,11 @@
+[0:a]volume=-8dB,highpass=f=30:p=2,asplit=3[lo][md][hi];
+[lo]lowpass=f=120:p=2,acompressor=level_in=1:threshold=0.05:ratio=2.4:attack=18:release=140:knee=6:makeup=1.35:detection=rms[loc];
+[md]highpass=f=120:p=2,lowpass=f=4500:p=2,acompressor=level_in=1:threshold=0.055:ratio=1.9:attack=22:release=180:knee=6:makeup=1.25:detection=rms[mdc];
+[hi]highpass=f=4500:p=2,acompressor=level_in=1:threshold=0.06:ratio=1.8:attack=6:release=120:knee=6:makeup=1.3:detection=rms[hic];
+[loc][mdc][hic]amix=inputs=3:normalize=0[mb];
+[mb]bass=f=55:t=q:w=0.7:g=1.5,
+equalizer=f=95:t=q:w=1.1:g=1.2,
+equalizer=f=300:t=q:w=1.0:g=-1.6,
+equalizer=f=3200:t=q:w=1.1:g=1.6,
+treble=f=10000:t=q:w=0.7:g=2.8,
+acompressor=level_in=1:threshold=0.10:ratio=1.4:attack=40:release=350:knee=8:makeup=1:detection=rms[out]

@@ -1,0 +1,66 @@
+<!doctype html>
+<!-- การ์ดเต็มช่องวิดีโอ ใช้เป็นการ์ดเปิด (โลโก้) การ์ดชื่องาน และการ์ดปิด
+     เรนเดอร์ด้วย scripts/pc_card.py ที่ขนาดเท่าช่องวิดีโอ (ค่าเริ่มต้น 1080x567)
+     แล้วใส่เป็น src ของช็อตใน edit.json -->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg1: #070520;
+    --bg2: #2a0f6b;
+    --text: #ffffff;
+    --accent: #3be8ff;
+    --font: 'Prompt', 'Leelawadee UI', Tahoma, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--font); color: var(--text);
+    background:
+      radial-gradient(ellipse at 50% 120%, var(--bg2) 0%, transparent 62%),
+      linear-gradient(160deg, var(--bg1), #000);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3.2vh; padding: 6vh 7vw; text-align: center;
+  }
+  .logos { display: flex; align-items: center; justify-content: center; gap: 4vw; }
+  .logos img { height: 20vh; width: auto; display: block; }
+  .logos:empty { display: none; }
+  .kicker { color: var(--accent); font-weight: 600; font-size: 5vh; line-height: 1.3; }
+  .title { font-weight: 700; font-size: 11vh; line-height: 1.22; }
+  .sub { font-weight: 400; font-size: 5.6vh; line-height: 1.45; }
+  b { color: var(--accent); font-weight: inherit; }
+  [data-k]:empty { display: none; }
+</style>
+</head>
+<body>
+  <div class="logos" data-imgs="logos"></div>
+  <div class="kicker" data-k="kicker"></div>
+  <div class="title" data-k="title">ชื่องาน</div>
+  <div class="sub" data-k="sub"></div>
+
+<script>
+  (function () {
+    var d = window.PC || {};
+    var esc = function (s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+    var rich = function (s) {
+      return esc(s).replace(/\*([^*]+)\*/g, '<b>$1</b>').replace(/\\n|\n/g, '<br>');
+    };
+    document.querySelectorAll('[data-k]').forEach(function (el) {
+      var k = el.getAttribute('data-k');
+      el.innerHTML = rich(k in d ? d[k] : el.textContent);
+    });
+    document.querySelectorAll('[data-imgs]').forEach(function (el) {
+      (d[el.getAttribute('data-imgs')] || []).forEach(function (src) {
+        var im = document.createElement('img'); im.src = src; el.appendChild(im);
+      });
+    });
+    Object.keys(d.vars || {}).forEach(function (k) {
+      document.documentElement.style.setProperty('--' + k, d.vars[k]);
+    });
+  })();
+</script>
+</body>
+</html>

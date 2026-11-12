@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:K;src:url(file:///$MEDIA/fonts/google/kanit/Kanit-Light.ttf);font-weight:300}
+@font-face{font-family:K;src:url(file:///$MEDIA/fonts/google/kanit/Kanit-Medium.ttf);font-weight:500}
+@font-face{font-family:T;src:url(file:///$MEDIA/fonts/google/trirong/Trirong-ExtraLight.ttf);font-weight:200}
+@font-face{font-family:T;src:url(file:///$MEDIA/fonts/google/trirong/Trirong-ExtraLightItalic.ttf);font-weight:200;font-style:italic}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#07080f}
+.sky{position:absolute;inset:0;background:
+  radial-gradient(ellipse 70% 38% at 50% 34%, rgba(255,214,150,.55), rgba(255,170,110,.18) 45%, transparent 75%),
+  radial-gradient(ellipse 120% 60% at 50% 110%, #1a2140 0%, transparent 70%),
+  linear-gradient(#0b0d1a,#07080f 60%,#0a0c18)}
+.rays{position:absolute;left:50%;top:34%;width:2400px;height:2400px;transform:translate(-50%,-50%);
+  background:repeating-conic-gradient(from 0deg, rgba(255,226,180,.07) 0deg 3deg, transparent 3deg 14deg);
+  -webkit-mask:radial-gradient(circle, #000 0, rgba(0,0,0,.6) 18%, transparent 46%)}
+.sun{position:absolute;left:50%;top:34%;width:210px;height:210px;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,#fff8e8 0,#ffe2b0 35%,rgba(255,200,140,.35) 62%,transparent 72%);filter:blur(2px)}
+.dust i{position:absolute;border-radius:50%;background:#ffe9c7}
+.horizon{position:absolute;left:0;right:0;top:1060px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,220,170,.5),transparent)}
+.txt{position:absolute;left:0;right:0;top:1130px;text-align:center;color:#f4ecdf}
+.kick{font:300 34px K;color:#e9c48f;letter-spacing:0}
+h1{margin:26px 0 0;font:200 128px/1.02 T;font-style:italic;color:#fff6e6}
+.sub{margin-top:40px;font:300 40px/1.5 K;color:#d9d2c6}
+.by{margin-top:22px;font:500 38px K;color:#ffd79a}
+.brand{position:absolute;left:0;right:0;bottom:120px;text-align:center;font:300 30px K;color:#9aa0b8}
+</style></head><body>
+<div class="sky"></div><div class="rays"></div><div class="sun"></div>
+<div class="dust" id="d"></div><div class="horizon"></div>
+<div class="txt">
+  <div class="kick">เพลงบรรเลงประจำช่อง</div>
+  <h1>Leave Behind<br>Light</h1>
+  <div class="sub">เพลงประกอบคลิปแปลเพลงของช่อง</div>
+  <div class="by">เล่นโดย ลินดา ผู้ช่วย AI</div>
+</div>
+<div class="brand">โกสินทร์ต้องบินได้</div>
+<script>
+let s=7,r=()=>(s=(s*16807)%2147483647)/2147483647,d=document.getElementById('d');
+for(let k=0;k<70;k++){let i=document.createElement('i'),z=1+r()*3.5;
+ i.style.cssText=`left:${r()*1080}px;top:${120+r()*920}px;width:${z}px;height:${z}px;opacity:${.15+r()*.5}`;d.appendChild(i)}
+</script>
+</body></html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#05060a}canvas{display:block}</style>
+</head><body><canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// ฉากเดียววาดตามเวลา t (วินาที) แบบ deterministic ให้ render.mjs เรียก draw(t) ทีละเฟรม
+const W = 1080, H = 1920, cv = document.getElementById('c'), g = cv.getContext('2d');
+let D, nodes = [], edges = [], T = {};
+const FONT = '"Kanit", "Leelawadee UI", sans-serif', MONO = '"Cascadia Mono", "Consolas", monospace';
+
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const ease = (x) => x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3);
+const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+
+window.setup = (data) => {
+  D = data; const n = D.items.length, r = rng(D.seed || 7);
+  T.intro = D.intro ?? 3; T.per = D.per ?? 2.6; T.outro = D.outro_sec ?? 3.2;
+  T.total = T.intro + n * T.per + T.outro;
+  D.palette = D.palette || ['#ff7a59', '#7cf6ff', '#b18cff', '#9dff7a', '#ffd166', '#ff6fb5', '#5ea3ff', '#ffa94d'];
+  // กลุ่มโหนดหนึ่งกลุ่มต่อหนึ่งรายการ วางเป็นเกลียวกลางจอ
+  for (let k = 0; k < n; k++) {
+    const ang = k / n * Math.PI * 2 + r() * 0.4, rad = 150 + (k % 2) * 120;
+    const cx = W / 2 + Math.cos(ang) * rad * 1.2, cy = 680 + Math.sin(ang) * rad * 0.95;
+    const cnt = Math.max(30, Math.floor(480 / n)) + Math.floor(r() * 15);
+    for (let i = 0; i < cnt; i++) {
+      const a = r() * Math.PI * 2, d = Math.pow(r(), 0.6) * 130;
+      nodes.push({ x: cx + Math.cos(a) * d, y: cy + Math.sin(a) * d * 1.2, k, s: 1.5 + r() * 3.2, ph: r() * 6.28, born: r() * T.intro });
+    }
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const a = nodes[i]; let best = -1, bd = 1e9;
+    for (let j = 0; j < 40; j++) { const b = nodes[Math.floor(r() * nodes.length)]; const d = (a.x - b.x) ** 2 + (a.y - b.y) ** 2; if (b !== a && d < bd) { bd = d; best = b; } }
+    edges.push([a, best]);
+    if (r() < 0.08) edges.push([a, nodes[Math.floor(r() * nodes.length)]]);
+  }
+  return T.total;
+};
+
+function activeIdx(t) { const i = Math.floor((t - T.intro) / T.per); return t < T.intro ? -1 : Math.min(i, D.items.length - 1); }
+
+function roundRect(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+
+window.draw = (t) => {
+  const n = D.items.length, ai = activeIdx(t), outro = t > T.total - T.outro;
+  const accent = D.accent || '#ff7a59';
+  // พื้นหลัง + vignette
+  g.fillStyle = '#05060a'; g.fillRect(0, 0, W, H);
+  const bg = g.createRadialGradient(W / 2, 900, 50, W / 2, 900, 900);
+  bg.addColorStop(0, hexA(accent, 0.10)); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  // กริดจาง
+  g.strokeStyle = 'rgba(255,255,255,0.035)'; g.lineWidth = 1;
+  for (let x = 0; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  for (let y = 0; y < H; y += 60) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+
+  // เส้นเชื่อม + พัลส์วิ่ง
+  g.globalCompositeOperation = 'lighter';
+  for (let e = 0; e < edges.length; e++) {
+    const [a, b] = edges[e]; if (t < a.born || t < b.born) continue;
+    const hot = a.k === ai || b.k === ai, col = D.palette[a.k % D.palette.length];
+    g.strokeStyle = hexA(col, hot ? 0.45 : 0.10); g.lineWidth = hot ? 1.6 : 0.8;
+    g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
+    if (hot || e % 9 === 0) {
+      const p = ((t * 0.7 + e * 0.137) % 1);
+      g.fillStyle = hexA(col, hot ? 0.95 : 0.5);
+      g.beginPath(); g.arc(a.x + (b.x - a.x) * p, a.y + (b.y - a.y) * p, hot ? 2.6 : 1.6, 0, 7); g.fill();
+    }
+  }
+  // โหนด
+  for (const p of nodes) {
+    if (t < p.born) continue;
+    const col = D.palette[p.k % D.palette.length], hot = p.k === ai;
+    const pulse = 0.6 + 0.4 * Math.sin(t * 3 + p.ph), sz = p.s * (hot ? 1.7 : 1) * ease((t - p.born) * 3);
+    const gl = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz * 5);
+    gl.addColorStop(0, hexA(col, (hot ? 0.9 : 0.45) * pulse)); gl.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gl; g.beginPath(); g.arc(p.x, p.y, sz * 5, 0, 7); g.fill();
+    g.fillStyle = hot ? '#fff' : hexA(col, 0.9); g.beginPath(); g.arc(p.x, p.y, sz * 0.7, 0, 7); g.fill();
+  }
+  g.globalCompositeOperation = 'source-over';
+
+  // หัวจอ
+  g.fillStyle = 'rgba(8,10,16,0.85)'; g.fillRect(0, 0, W, 300);
+  g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(0, 300); g.lineTo(W, 300); g.stroke();
+  g.font = `600 30px ${MONO}`; g.fillStyle = accent;
+  g.fillText(`● ${D.tag || 'CLAUDE CODE'}`, 60, 80);
+  g.fillStyle = 'rgba(255,255,255,0.45)'; g.textAlign = 'right';
+  g.fillText(`${String(Math.max(ai + 1, 0)).padStart(2, '0')}/${String(n).padStart(2, '0')}`, W - 60, 80); g.textAlign = 'left';
+  const tt = D.title, shown = tt.slice(0, Math.ceil(tt.length * ease(t / 1.2)));
+  let fs = 76; g.font = `700 ${fs}px ${FONT}`;
+  while (g.measureText(tt).width > W - 120 && fs > 44) g.font = `700 ${--fs}px ${FONT}`;
+  g.fillStyle = '#fff'; g.fillText(shown, 60, 180);
+  g.font = `400 38px ${FONT}`; g.fillStyle = hexA('#ffffff', 0.7 * ease(t - 0.8)); g.fillText(D.subtitle || '', 60, 245);
+
+  // รายการแบบเทอร์มินัลด้านซ้ายล่าง
+  const listY = 1330, rowH = Math.min(52, 330 / n);
+  g.fillStyle = 'rgba(8,10,16,0.82)'; roundRect(40, listY - 60, W - 80, rowH * n + 90, 22); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.10)'; g.stroke();
+  g.font = `500 24px ${MONO}`; g.fillStyle = 'rgba(255,255,255,0.4)'; g.fillText('$ ls ./repos', 70, listY - 20);
+  for (let i = 0; i < n; i++) {
+    const it = D.items[i], y = listY + 20 + i * rowH, vis = t > 0.6 + i * 0.12;
+    if (!vis) continue;
+    const on = i === ai, done = i < ai, col = D.palette[i % D.palette.length];
+    if (on) { g.fillStyle = hexA(col, 0.16); g.fillRect(56, y - rowH * 0.7, W - 112, rowH); }
+    g.font = `${on ? 700 : 400} ${Math.min(30, rowH * 0.62)}px ${MONO}`;
+    g.fillStyle = on ? col : done ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.38)';
+    g.fillText(`${on ? '▶' : done ? '✓' : ' '} ${String(i + 1).padStart(2, '0')} ${it.name}`, 70, y);
+    if (it.stars) { g.textAlign = 'right'; g.fillText(`★ ${it.stars}`, W - 76, y); g.textAlign = 'left'; }
+  }
+
+  // การ์ดรายการปัจจุบัน
+  if (ai >= 0 && !outro) {
+    const it = D.items[ai], col = D.palette[ai % D.palette.length], k = ease((t - T.intro - ai * T.per) * 4);
+    const cy = 1050 + (1 - k) * 40;
+    g.globalAlpha = k;
+    g.fillStyle = 'rgba(10,12,20,0.92)'; roundRect(60, cy, W - 120, 200, 26); g.fill();
+    g.strokeStyle = col; g.lineWidth = 3; g.stroke(); g.lineWidth = 1;
+    g.fillStyle = col; roundRect(90, cy + 32, 86, 86, 18); g.fill();
+    g.fillStyle = '#05060a'; g.font = `800 50px ${FONT}`; g.textAlign = 'center'; g.fillText(String(ai + 1), 133, cy + 94); g.textAlign = 'left';
+    g.fillStyle = '#fff'; g.font = `700 46px ${FONT}`; g.fillText(it.label || it.name, 200, cy + 92);
+    g.fillStyle = 'rgba(255,255,255,0.78)'; g.font = `400 36px ${FONT}`; g.fillText(it.line || '', 90, cy + 165);
+    g.globalAlpha = 1;
+  }
+
+  // ปิดท้าย
+  if (outro) {
+    const k = ease((t - (T.total - T.outro)) * 2);
+    g.globalAlpha = k; g.fillStyle = 'rgba(10,12,20,0.94)'; roundRect(60, 1040, W - 120, 220, 26); g.fill();
+    g.strokeStyle = accent; g.lineWidth = 3; g.stroke(); g.lineWidth = 1;
+    g.fillStyle = '#fff'; g.font = `700 54px ${FONT}`; g.textAlign = 'center';
+    g.fillText(D.outro || 'ลิงก์ครบทุกตัวอยู่ในแคปชัน 👇', W / 2, 1140);
+    g.fillStyle = accent; g.font = `400 38px ${FONT}`; g.fillText(D.outro2 || 'กดบันทึกไว้ก่อนหาไม่เจอ', W / 2, 1210);
+    g.textAlign = 'left'; g.globalAlpha = 1;
+  }
+
+  // ลายน้ำ
+  g.fillStyle = 'rgba(255,255,255,0.55)'; g.font = `400 30px ${FONT}`; g.textAlign = 'center';
+  g.fillText(D.watermark || 'โกสินทร์ต้องบินได้ | ติดตามไว้ ไม่ตกข่าว AI', W / 2, 1820); g.textAlign = 'left';
+};
+</script></body></html>

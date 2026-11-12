@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700;800&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#FFF8EE; --ink:#23395B; --muted:#5A6270; --orange:#F28C28; --teal:#2A9D8F; --card:#FFFFFF; --line:#F2C894; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1080px; background:var(--bg); font-family:'Sarabun',sans-serif; color:var(--ink); }
+  .wrap { padding:56px 56px 48px; }
+  header { display:flex; align-items:center; gap:28px; margin-bottom:28px; }
+  header img { width:360px; height:360px; border-radius:40px; border:6px solid var(--ink); background:#fff; object-fit:cover; flex:none; }
+  .kicker { display:inline-block; font-family:'Kanit'; font-weight:700; font-size:26px; color:#fff; background:var(--teal); padding:6px 18px; border-radius:999px; }
+  h1 { font-family:'Kanit'; font-weight:800; font-size:66px; line-height:1.18; margin:14px 0 10px; }
+  h1 span { color:var(--orange); }
+  .sub { font-size:30px; line-height:1.45; color:var(--muted); font-weight:600; }
+  .steps { position:relative; }
+  .step { display:flex; align-items:center; gap:30px; background:var(--card); border:5px solid var(--ink); border-radius:36px;
+          padding:22px 30px 22px 22px; box-shadow:10px 10px 0 var(--line); position:relative; }
+  .step.rev { flex-direction:row-reverse; padding:22px 22px 22px 30px; }
+  .step img { width:300px; height:300px; border-radius:26px; object-fit:cover; flex:none; border:4px solid var(--ink); }
+  .num { position:absolute; top:-30px; width:76px; height:76px; border-radius:50%; background:var(--orange); color:#fff;
+         font-family:'Kanit'; font-weight:800; font-size:42px; display:flex; align-items:center; justify-content:center;
+         border:5px solid var(--ink); }
+  .step .num { left:-22px; } .step.rev .num { left:auto; right:-22px; }
+  .txt { flex:1; min-width:0; }
+  .txt h2 { font-family:'Kanit'; font-weight:700; font-size:44px; line-height:1.2; margin-bottom:10px; }
+  .txt p { font-size:28px; line-height:1.5; }
+  .chip { display:inline-block; margin-top:12px; font-family:'Kanit'; font-weight:500; font-size:22px; color:var(--teal);
+          border:3px solid var(--teal); border-radius:999px; padding:3px 16px; background:#EEF8F6; }
+  .arrow { height:96px; display:flex; justify-content:center; }
+  .arrow svg { width:300px; height:96px; }
+  footer { margin-top:40px; background:var(--ink); color:#fff; border-radius:36px; padding:30px 36px; }
+  footer h3 { font-family:'Kanit'; font-weight:700; font-size:36px; margin-bottom:8px; color:#FFD27A; }
+  footer p { font-size:28px; line-height:1.5; }
+  .brand { margin-top:22px; text-align:center; font-family:'Kanit'; font-weight:700; font-size:30px; color:var(--ink); }
+  .brand small { display:block; font-family:'Sarabun'; font-weight:400; font-size:20px; color:var(--muted); margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="img/s00_hero.png" alt="">
+    <div>
+      <span class="kicker">AI ทำ · คนตรวจ</span>
+      <h1>เบื้องหลัง<br>คลิปสั้น <span>1 คลิป</span></h1>
+      <p class="sub">จากหาข้อมูล จนตั้งเวลาโพสต์<br>10 ขั้นที่ทำทุกคลิปของเพจ</p>
+    </div>
+  </header>
+
+  <div class="steps" id="steps"></div>
+
+  <footer>
+    <h3>คนยังต้องทำเอง</h3>
+    <p>เลือกหัวข้อ · ล็อกอินบัญชี · <b>ฟังเสียงก่อนคลิปขึ้น</b><br>เครื่องตรวจได้แค่คำ ตรวจน้ำเสียงไม่ได้</p>
+  </footer>
+  <div class="brand">โกสินทร์ต้องบินได้<small>ภาพการ์ตูนสร้างด้วย ChatGPT · ตัวหนังสือวางด้วย Chromium</small></div>
+</div>
+<script>
+const S = [
+  ["s01_research", "หาข้อมูล", "ค้นจากแหล่งต้นทาง จดลิงก์ทุกข้อ<br>เรื่องที่ยังยืนยันไม่ได้ ห้ามพูด", "เว็บทางการ · สำนักข่าว"],
+  ["s02_script", "เขียนบท", "แยกคำที่พูดกับซับบนจอ<br>ใส่อารมณ์ทีละย่อหน้า", "กะความยาว 10 ตัวอักษรต่อวินาที"],
+  ["s03_images", "หาภาพ", "ภาพเสรีจาก Wikimedia Commons<br>เปิดดูทุกภาพ ใส่เครดิตครบ", "CC0 · CC BY · CC BY-SA"],
+  ["s04_voice", "พากย์เสียง", "เสียงโคลนของเจ้าของเพจ<br>สร้างทีละย่อหน้า แล้วต่อกัน", "7 ถึง 13 ย่อหน้าต่อคลิป"],
+  ["s05_check", "ตรวจคำเพี้ยน", "ถอดเสียงกลับมาเทียบกับบท<br>คำไหนเพี้ยน เปลี่ยนคำแล้วสร้างใหม่", "ฝั่ง → ทาง · พอ → เมื่อ"],
+  ["s06_sync", "จัดภาพให้ตรงประโยค", "รู้เวลาเริ่มของทุกบรรทัด<br>ภาพคนต้องตรงกับชื่อในซับ", "ถอดเสียงแล้วจับคู่กับบท"],
+  ["s07_music", "ใส่เพลง", "เพลงบรรเลงที่เช็กแล้วว่าไม่มีเสียงร้อง<br>เบากว่าเสียงพูดราว 10 dB", "YouTube Audio Library · Suno"],
+  ["s08_render", "เรนเดอร์", "คลิปแนวตั้ง 1080x1920<br>ซับไทยสระและวรรณยุกต์ไม่ลอย", "ความดัง -14 LUFS"],
+  ["s09_qc_cover", "ตรวจทุกช่วง + ทำปก", "ดึงภาพนิ่ง 15 ถึง 20 จุดมาดู<br>ทุกคำบนปกต้องจริงตามคลิป", "ปกอ่านจบในครึ่งวินาที"],
+  ["s10_publish", "ตั้งเวลาโพสต์", "คำบรรยายมีแหล่งข้อมูลและเครดิต<br>วันละคลิป ข่าว AI 19:00 ดนตรี 20:00", "YouTube Shorts · Facebook Reels"],
+];
+const box = document.getElementById("steps");
+const arrow = (rev) => `<div class="arrow"><svg viewBox="0 0 300 96"><path d="${rev ? "M60 4 C 60 60, 240 40, 240 84" : "M240 4 C 240 60, 60 40, 60 84"}"
+  fill="none" stroke="#23395B" stroke-width="6" stroke-dasharray="14 10" stroke-linecap="round"/>
+  <path d="${rev ? "M226 72 L240 92 L254 72" : "M46 72 L60 92 L74 72"}" fill="none" stroke="#23395B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+S.forEach(([img, t, p, chip], i) => {
+  const rev = i % 2 === 1;
+  box.insertAdjacentHTML("beforeend",
+    `<div class="step${rev ? " rev" : ""}"><div class="num">${i + 1}</div><img src="img/${img}.png" alt="">
+      <div class="txt"><h2>${t}</h2><p>${p}</p><span class="chip">${chip}</span></div></div>`);
+  if (i < S.length - 1) box.insertAdjacentHTML("beforeend", arrow(rev));
+});
+</script>
+</body>
+</html>

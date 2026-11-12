@@ -1,0 +1,12 @@
+.env*
+*.env
+*.pem
+*.key
+*accessKeys*.csv
+*.mp4
+*.wav
+*.mp3
+*.jpg
+*.png
+__pycache__/
+node_modules/

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --bg:#14100d; --ink:#FFFFFF; --mut:#C2B5AA; --acc:#FFC83D; --red:#E08A6B; --grn:#3DDC97; --card:#241b15; --line:#4a3527; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { width:1080px; height:1920px; background:var(--bg); overflow:hidden; font-family:'Prompt','Leelawadee UI',sans-serif; color:var(--ink); }
+  #stage { position:absolute; inset:0; overflow:hidden; }
+  #glow { position:absolute; left:-200px; top:200px; width:1480px; height:1300px; border-radius:50%; filter:blur(130px); opacity:.2; background:var(--red); }
+  #vig { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 45%, rgba(0,0,0,.75) 100%); }
+  #flash { position:absolute; inset:0; background:#fff; opacity:0; }
+  #bar { position:absolute; left:0; top:0; height:8px; background:var(--red); }
+  #tag { position:absolute; left:60px; top:1330px; font-size:30px; font-weight:500; color:var(--mut); border:2px solid var(--line); border-radius:999px; padding:8px 24px; background:rgba(10,11,16,.6); }
+  .scene { position:absolute; left:0; top:290px; width:1080px; height:1000px; }
+  .c { position:absolute; left:0; width:1080px; text-align:center; }
+  .big { font-weight:800; line-height:1.15; }
+  .fit { display:inline-block; white-space:nowrap; }
+  .acc { color:var(--acc); } .red { color:var(--red); } .grn { color:var(--grn); } .mut { color:var(--mut); }
+  .card { position:absolute; background:var(--card); border:3px solid var(--line); border-radius:36px; }
+  .chip { display:inline-block; font-size:56px; font-weight:700; padding:22px 44px; border-radius:28px; background:var(--card); border:4px solid var(--line); white-space:nowrap; }
+  .bubble { position:absolute; font-size:54px; font-weight:600; padding:24px 40px; border-radius:36px 36px 36px 8px; background:#232936; color:#fff; white-space:nowrap; transform-origin:left bottom; border:3px solid var(--line); }
+  .stamp { position:absolute; border:12px solid var(--red); color:var(--red); border-radius:28px; padding:14px 40px; font-weight:800; font-size:84px; white-space:nowrap; background:rgba(10,11,16,.82); }
+  #sub { position:absolute; left:0; width:1080px; top:150px; height:130px; display:flex; align-items:center; justify-content:center; text-align:center; white-space:nowrap;
+         font-size:60px; font-weight:800; line-height:1.2; -webkit-text-stroke:12px #000; paint-order:stroke fill; }
+  #sub.em { font-size:76px; color:var(--acc); }
+  #credit { position:absolute; left:0; width:1080px; top:1245px; text-align:center; font-size:34px; font-weight:500; color:var(--mut); opacity:0; }
+  svg { overflow:visible; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div><div id="vig"></div>
+  <div id="bar"></div>
+  <div id="tag">บรรยายโดย โกสินทร์ต้องบินได้</div>
+  <div id="scenes"></div>
+  <div id="sub"></div>
+  <div id="credit">โกสินทร์ต้องบินได้</div>
+  <div id="flash"></div>
+</div>
+
+<script>
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const eo = x => 1 - Math.pow(1 - cl(x), 3);
+const back = x => { x = cl(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const on = (lt, at) => lt >= at ? 1 : 0;
+function pop(el, lt, at, d = 0.32, extra = '') { el.style.opacity = on(lt, at); el.style.transform = `${extra} scale(${back((lt - at) / d)})`; }
+function slide(el, lt, at, dx = 0, dy = 80, d = 0.35) { const k = eo((lt - at) / d); el.style.opacity = on(lt, at) * k; el.style.transform = `translate(${dx * (1 - k)}px,${dy * (1 - k)}px)`; }
+function el(html) { const t = document.createElement('div'); t.innerHTML = html.trim(); return t.firstChild; }
+const q = (root, sel) => root.querySelector(sel);
+const qa = (root, sel) => Array.from(root.querySelectorAll(sel));
+const br = s => s.replace(' ', '<br>');
+
+const PERSON = (c = '#3A4250', s = 1) => `<svg width="${300 * s}" height="${330 * s}" viewBox="0 0 300 330"><circle cx="150" cy="105" r="78" fill="${c}"/><path d="M20 330 Q20 205 150 205 Q280 205 280 330 Z" fill="${c}"/></svg>`;
+const IC2 = d => `<svg width="170" height="170" viewBox="0 0 170 170"><g fill="none" stroke="#FFC83D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">${d}</g></svg>`;
+const ICON = {
+  robot: IC2('<rect x="30" y="56" width="110" height="86" rx="18"/><path d="M85 56 V28 M62 96 H64 M106 96 H108 M64 120 H106"/><circle cx="85" cy="22" r="6"/>'),
+  search: IC2('<circle cx="74" cy="74" r="46"/><path d="M108 108 L150 150"/>'),
+  gear: IC2('<circle cx="85" cy="85" r="26"/><path d="M85 20 V40 M85 130 V150 M20 85 H40 M130 85 H150 M39 39 L53 53 M117 117 L131 131 M131 39 L117 53 M53 117 L39 131"/>'),
+  doc: `<svg width="170" height="170" viewBox="0 0 170 170"><g fill="none" stroke="#FFC83D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"><path d="M40 16 H106 L134 44 V154 H40 Z"/><path d="M62 80 H112 M62 106 H112 M62 132 H94"/></g></svg>`,
+  check: `<svg width="170" height="170" viewBox="0 0 170 170"><g fill="none" stroke="#FFC83D" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"><circle cx="85" cy="85" r="64"/><path d="M56 86 L78 108 L116 64"/></g></svg>`,
+  user: `<svg width="170" height="170" viewBox="0 0 300 330"><circle cx="150" cy="105" r="78" fill="#FF7A1A"/><path d="M20 330 Q20 205 150 205 Q280 205 280 330 Z" fill="#FF7A1A"/></svg>`,
+  hand: `<svg width="170" height="170" viewBox="0 0 170 170"><g fill="none" stroke="#FF7A1A" stroke-width="16" stroke-linecap="round"><path d="M50 95 V40 M78 90 V22 M106 90 V28 M134 100 V52"/><path d="M50 95 Q40 150 92 156 Q140 156 134 100" stroke-linejoin="round"/><path d="M50 110 L24 86"/></g></svg>`,
+  wave: `<svg width="170" height="170" viewBox="0 0 170 170"><g stroke="#FF7A1A" stroke-width="14" stroke-linecap="round"><line x1="25" y1="70" x2="25" y2="100"/><line x1="55" y1="45" x2="55" y2="125"/><line x1="85" y1="20" x2="85" y2="150"/><line x1="115" y1="50" x2="115" y2="120"/><line x1="145" y1="70" x2="145" y2="100"/></g></svg>`,
+  chat: `<svg width="170" height="170" viewBox="0 0 170 170"><path d="M20 30 H150 V115 H80 L45 148 V115 H20 Z" fill="none" stroke="#FF7A1A" stroke-width="14" stroke-linejoin="round"/></svg>`,
+  clock: `<svg width="170" height="170" viewBox="0 0 170 170"><circle cx="85" cy="85" r="64" fill="none" stroke="#FF7A1A" stroke-width="14"/><path d="M85 48 V85 L112 102" fill="none" stroke="#FF7A1A" stroke-width="14" stroke-linecap="round"/></svg>`,
+  site: `<svg width="170" height="170" viewBox="0 0 170 170"><rect x="14" y="24" width="142" height="122" rx="14" fill="none" stroke="#FF7A1A" stroke-width="12"/><line x1="14" y1="56" x2="156" y2="56" stroke="#FF7A1A" stroke-width="12"/><line x1="38" y1="86" x2="132" y2="86" stroke="#FF7A1A" stroke-width="10"/><line x1="38" y1="114" x2="104" y2="114" stroke="#FF7A1A" stroke-width="10"/></svg>`,
+};
+
+// Kosin 04/10/2026 แต่ละชนิดฉากคืน { root, update(lt, d, t) } โดย lt = เวลาในฉาก, d = ความยาวฉาก, t = เวลารวม
+const TYPES = {
+  title(s) {
+    const r = el(`<div class="scene">
+      <div class="c big" style="top:${s.c ? 250 : 300}px;font-size:124px"><span class="fit" data-w="980">${s.a}</span></div>
+      <div class="c big red" style="top:${s.c ? 410 : 460}px;font-size:140px"><span class="fit" data-w="1000">${s.b}</span></div>
+      ${s.c ? `<div class="c" style="top:640px;font-size:60px;font-weight:600;color:var(--mut)"><span class="fit" data-w="960">${s.c}</span></div>` : ''}</div>`);
+    const [a, b, c] = r.children;
+    return { root: r, update(lt, d) { slide(a, lt, 0.05); pop(b, lt, d * 0.4); if (c) slide(c, lt, d * 0.65); } };
+  },
+  stamp(s) {
+    const r = el(`<div class="scene"><div style="position:absolute;left:110px;top:260px;width:860px;height:440px;border:14px solid var(--red);border-radius:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,11,16,.5)">
+      <div class="big red" style="font-size:132px"><span class="fit" data-w="780">${s.a}</span></div><div class="big" style="font-size:108px"><span class="fit" data-w="780">${s.b}</span></div></div></div>`);
+    const b = r.firstElementChild;
+    return { root: r, update(lt, d, t) { pop(b, lt, 0.05, 0.38, `rotate(${-5 + 1.5 * Math.sin(t * 2)}deg)`); } };
+  },
+  // Kosin 15/10/2026 ฉากภาพหน้าจอจริง กรอบขาวมุมมน ค่อย ๆ ซูมเข้า พร้อมป้ายใต้ภาพ
+  shot(s) {
+    const r = el(`<div class="scene"><div style="position:absolute;left:30px;top:260px;width:1020px;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55);border:6px solid var(--acc)"><img src="${s.img}" style="display:block;width:100%"></div>
+      <div class="c big acc" style="top:640px;font-size:72px"><span class="fit" data-w="980">${s.foot}</span></div></div>`);
+    const [card, foot] = r.children;
+    return { root: r, update(lt, d) { pop(card, lt, 0.05, 0.35, `scale(${1 + 0.04 * Math.min(1, lt / Math.max(d, 0.1))})`); slide(foot, lt, d * 0.35); } };
+  },
+  warn(s) {
+    const r = el(`<div class="scene"><svg width="1080" height="460" style="position:absolute;top:20px"><path d="M540 40 L850 440 H230 Z" fill="none" stroke="#FF3B3B" stroke-width="30" stroke-linejoin="round"/><line x1="540" y1="190" x2="540" y2="320" stroke="#FF3B3B" stroke-width="34" stroke-linecap="round"/><circle cx="540" cy="378" r="20" fill="#FF3B3B"/></svg>
+      <div class="c big" style="top:530px;font-size:128px"><span class="fit" data-w="980">${s.a}</span></div><div class="c big red" style="top:720px;font-size:116px"><span class="fit" data-w="980">${s.b}</span></div></div>`);
+    const [tri, a, b] = r.children;
+    return { root: r, update(lt, d) { const sh = lt < 0.9 ? Math.sin(lt * 60) * 14 * (1 - lt / 0.9) : 0; pop(tri, lt, 0, 0.3, `translateX(${sh}px)`); pop(a, lt, 0.15, 0.3, `translateX(${-sh}px)`); pop(b, lt, d * 0.55); } };
+  },
+  num(s) {
+    const r = el(`<div class="scene"><div class="c big" style="top:120px;font-size:120px">${s.top}</div><div class="c big red" style="top:240px;height:506px;display:flex;align-items:center;justify-content:center;font-size:460px;line-height:1.1"><span class="fit" data-w="980">${s.n}</span></div><div class="c big" style="top:760px;font-size:140px">${s.unit}</div></div>`);
+    const [a, n, b] = r.children;
+    return { root: r, update(lt, d) { slide(a, lt, 0, 0, -60); pop(n, lt, d * 0.3, 0.4); pop(b, lt, d * 0.5); } };
+  },
+  rule(s) {
+    const r = el(`<div class="scene"><div class="card" style="left:70px;top:20px;width:940px;height:980px;padding:60px">
+      <div class="big acc" style="font-size:200px;line-height:1">${s.n}</div>
+      <div class="big" style="font-size:92px;margin-top:24px;line-height:1.2">${br(s.title)}</div>
+      <div class="chips" style="margin-top:56px">${s.chips.map(c => `<div style="margin-top:22px"><span class="chip red fit" data-w="820" style="border-color:var(--red)">${c}</span></div>`).join('')}</div></div></div>`);
+    const card = r.firstElementChild, chips = qa(r, '.chip');
+    return { root: r, update(lt, d) { slide(card, lt, 0, 0, 160); chips.forEach((c, i) => pop(c, lt, d * (0.45 + i * 0.2))); } };
+  },
+  cta(s) {
+    // พื้นที่ฉากเริ่มที่ y 290 ของจอ ปลายลูกศรอยู่ราว y 1560 ของจอ เหนือปุ่มติดตามที่มุมล่างซ้ายของ Facebook Reels และ YouTube Shorts
+    const r = el(`<div class="scene">
+      <div class="c big" style="top:40px;font-size:96px"><span class="fit" data-w="980">${s.a}</span></div>
+      <div class="c big acc" style="top:170px;font-size:140px"><span class="fit" data-w="1000">${s.b}</span></div>
+      <div class="c" style="top:370px;font-size:46px;font-weight:600;color:var(--mut)"><span class="fit" data-w="960">${s.c || ''}</span></div>
+      <div class="big acc" style="position:absolute;left:300px;top:560px;font-size:60px">${s.d || 'ปุ่มติดตามอยู่ตรงนี้'}</div>
+      <svg width="1080" height="760" style="position:absolute;left:0;top:640px;overflow:visible"><path d="M600 20 C 560 260, 300 380, 230 600" fill="none" stroke="#FF7A1A" stroke-width="28" stroke-linecap="round"/><path d="M140 520 L228 640 L320 528" fill="none" stroke="#FF7A1A" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`);
+    const [a, b, c, lab, arr] = r.children;
+    return { root: r, update(lt, d, t) {
+      slide(a, lt, 0.05); pop(b, lt, d * 0.18); slide(c, lt, d * 0.3);
+      lab.style.opacity = eo((lt - d * 0.35) / 0.3);
+      arr.style.opacity = eo((lt - d * 0.35) / 0.3);
+      arr.style.transform = `translateY(${Math.abs(Math.sin(t * 4)) * 34}px)`;
+      const tag = document.getElementById('tag'); if (tag) tag.style.opacity = 1 - eo(lt / 0.4);
+      document.getElementById('credit').style.opacity = 0; } };
+  },
+  chat(s) {
+    const r = el(`<div class="scene">${s.heart ? `<svg width="160" height="150" viewBox="0 0 160 150" style="position:absolute;left:820px;top:40px"><path d="M80 140 L16 76 A38 38 0 1 1 80 34 A38 38 0 1 1 144 76 Z" fill="#FF3B3B"/></svg>` : ''}
+      <div style="position:absolute;left:90px;top:70px;display:flex;align-items:center;gap:26px"><div style="width:130px;height:130px;border-radius:50%;background:#232936;overflow:hidden;display:flex;align-items:flex-end;justify-content:center">${PERSON('#596273', 0.36)}</div><div style="font-size:48px;font-weight:600;color:var(--mut)">กำลังพิมพ์</div></div>
+      ${s.bubbles.map((b, i) => `<div class="bubble" style="left:${90 + i * 50}px;top:${270 + i * 170}px">${b}</div>`).join('')}
+      <div class="c big red" style="top:${290 + s.bubbles.length * 170 + 90}px;font-size:100px"><span class="fit" data-w="980">${s.foot}</span></div></div>`);
+    const bs = qa(r, '.bubble'), foot = r.lastElementChild, heart = s.heart ? r.firstElementChild : null;
+    return { root: r, update(lt, d, t) { bs.forEach((b, i) => pop(b, lt, 0.1 + d * 0.28 * i)); pop(foot, lt, d * 0.68); if (heart) heart.style.transform = `scale(${1 + 0.12 * Math.abs(Math.sin(t * 5))})`; } };
+  },
+  flow(s) {
+    const col = s.good ? 'grn' : 'red', cv = s.good ? 'var(--grn)' : 'var(--red)';
+    const r = el(`<div class="scene">${s.steps.map((st, i) => `<div class="c" style="top:${80 + i * 300}px"><span class="chip ${i === s.steps.length - 1 ? col : ''} fit" data-w="940" style="font-size:76px;padding:30px 56px;${i === s.steps.length - 1 ? `border-color:${cv}` : ''}">${st}</span></div>
+      ${i < s.steps.length - 1 ? `<svg class="arr" width="120" height="120" style="position:absolute;left:480px;top:${80 + i * 300 + 175}px"><path d="M60 5 V100 M25 68 L60 105 L95 68" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}`).join('')}</div>`);
+    const chips = qa(r, '.chip'), arrs = qa(r, '.arr');
+    return { root: r, update(lt, d) { chips.forEach((c, i) => pop(c, lt, 0.08 + d * 0.3 * i)); arrs.forEach((a, i) => a.style.opacity = eo((lt - (0.08 + d * 0.3 * (i + 1) - 0.15)) / 0.2)); } };
+  },
+  cards(s) {
+    const r = el(`<div class="scene">${s.items.map((it, i) => `<div class="card" style="left:${70 + i * 490}px;top:60px;width:450px;height:420px;text-align:center;padding-top:50px">${ICON[it.icon]}<div class="big" style="font-size:56px;margin-top:26px"><span class="fit" data-w="400">${it.label}</span></div></div>`).join('')}
+      <div class="c big red" style="top:620px;font-size:112px"><span class="fit" data-w="980">${s.foot}</span></div></div>`);
+    const cs = qa(r, '.card'), foot = r.lastElementChild;
+    return { root: r, update(lt, d) { cs.forEach((c, i) => pop(c, lt, 0.05 + d * 0.25 * i)); pop(foot, lt, d * 0.62); } };
+  },
+  strike(s) {
+    const r = el(`<div class="scene">${s.items.map((it, i) => `<div class="c big ${s.soft ? 'mut' : ''}" style="top:${90 + i * 190}px;font-size:110px"><span class="fit" data-w="900" style="position:relative">${it}<i style="position:absolute;left:-20px;top:52%;height:14px;width:0;background:var(--red);border-radius:7px"></i></span></div>`).join('')}
+      <div class="c big red" style="top:${110 + s.items.length * 190 + 60}px;font-size:124px"><span class="fit" data-w="980">${s.foot}</span></div></div>`);
+    const rows = qa(r, '.c').slice(0, s.items.length), lines = qa(r, 'i'), foot = r.lastElementChild;
+    return { root: r, update(lt, d) { rows.forEach((row, i) => slide(row, lt, 0.05 + d * 0.18 * i, -80, 0)); lines.forEach((l, i) => l.style.width = `calc(${eo((lt - d * (0.5 + 0.08 * i)) / 0.25) * 100}% + ${eo((lt - d * (0.5 + 0.08 * i)) / 0.25) * 40}px)`); pop(foot, lt, d * 0.7); } };
+  },
+  phone(s) {
+    const r = el(`<div class="scene"><div class="card" style="left:290px;top:0;width:500px;height:800px;border-radius:64px;border-color:#fff;border-width:8px;text-align:center">
+        <div style="margin-top:70px;font-size:40px;color:var(--mut);font-weight:500">สายเรียกเข้า</div><div class="big" style="font-size:130px;margin-top:20px"><span class="fit" data-w="440">${s.caller}</span></div>
+        <div style="position:relative;width:500px;height:260px;margin-top:30px"><div class="ring" style="position:absolute;left:150px;top:30px;width:200px;height:200px;border-radius:50%;border:8px solid #37D67A"></div><div class="ring" style="position:absolute;left:150px;top:30px;width:200px;height:200px;border-radius:50%;border:8px solid #37D67A"></div><div style="position:absolute;left:175px;top:55px;width:150px;height:150px;border-radius:50%;background:#37D67A"></div></div></div>
+      <div class="bubble" style="left:110px;top:640px;background:var(--red);border-color:var(--red);font-size:64px;padding:26px 44px">${s.bubble}</div>
+      <div class="c big" style="top:840px;font-size:100px"><span class="fit" data-w="1000">${s.q}</span></div></div>`);
+    const [ph, bub, qq] = r.children, rings = qa(r, '.ring');
+    return { root: r, update(lt, d, t) { slide(ph, lt, 0, 0, 200); ph.style.transform += ` rotate(${Math.sin(t * 38) * 1.2}deg)`; rings.forEach((g, i) => { const k = (t * 1.3 + i * 0.5) % 1; g.style.transform = `scale(${1 + k * 0.9})`; g.style.opacity = 1 - k; }); pop(bub, lt, d * 0.4); pop(qq, lt, d * 0.7); } };
+  },
+  videocall(s) {
+    const r = el(`<div class="scene"><div class="card" style="left:250px;top:0;width:580px;height:800px;border-radius:56px;border-color:#fff;border-width:8px;overflow:hidden;background:#11141B">
+        <div style="position:absolute;left:0;top:34px;width:100%;text-align:center;font-size:36px;color:var(--mut);font-weight:500">วิดีโอคอล</div>
+        <div style="position:absolute;left:0;top:86px;width:100%;text-align:center;font-size:54px;font-weight:700">${s.name}</div>
+        <div class="face" style="position:absolute;left:90px;top:210px;width:400px;height:440px">${PERSON('#4A5364', 1.33)}</div>
+        <div class="gl" style="position:absolute;left:0;width:100%;height:46px;background:rgba(255,59,59,.38);top:300px;opacity:0"></div>
+        <div class="gl" style="position:absolute;left:0;width:100%;height:22px;background:rgba(120,220,255,.34);top:470px;opacity:0"></div>
+        <div class="scan" style="position:absolute;left:0;width:100%;height:120px;background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.07),rgba(255,255,255,0))"></div>
+        <div style="position:absolute;left:215px;bottom:40px;width:150px;height:90px;border-radius:45px;background:var(--red)"></div></div>
+      <div class="c" style="top:840px"><span class="stamp fit" data-w="980" style="position:static;display:inline-block">${s.cap}</span></div></div>`);
+    const card = r.firstElementChild, face = q(r, '.face'), gls = qa(r, '.gl'), scan = q(r, '.scan'), cap = r.lastElementChild;
+    return { root: r, update(lt, d, t) {
+      slide(card, lt, 0, 0, 180); scan.style.top = ((t * 260) % 920 - 120) + 'px';
+      const g = s.glitch || lt > d * 0.5 ? (Math.sin(t * 23) > 0.55 ? 1 : 0) : 0;
+      face.style.transform = `translateX(${g * Math.sin(t * 90) * 16}px) scale(${1 + 0.02 * Math.sin(t * 3)})`;
+      gls.forEach((x, i) => { x.style.opacity = g; x.style.top = (260 + ((t * 300 + i * 170) % 360)) + 'px'; });
+      pop(cap, lt, d * 0.5, 0.3, 'rotate(-4deg)');
+    } };
+  },
+  ad(s) {
+    const r = el(`<div class="scene"><div class="card" style="left:90px;top:0;width:900px;height:800px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:24px;padding:34px 40px"><div style="width:110px;height:110px;border-radius:50%;background:#232936;overflow:hidden;display:flex;align-items:flex-end;justify-content:center">${PERSON('#596273', 0.3)}</div>
+          <div><div style="font-size:50px;font-weight:700">${s.name}</div><div style="font-size:34px;color:var(--mut);font-weight:500">ได้รับการสนับสนุน</div></div></div>
+        <div style="position:relative;height:420px;background:#0E1117;display:flex;align-items:flex-end;justify-content:center">${PERSON('#4A5364', 1.1)}<div class="mouth" style="position:absolute;left:418px;top:205px;width:64px;height:16px;border-radius:10px;background:#0E1117"></div></div>
+        <div style="padding:34px 40px;font-size:60px;font-weight:700;line-height:1.25">"${s.quote}"</div></div>
+      <div class="c" style="top:820px"><span class="stamp fit" data-w="980" style="position:static;display:inline-block">${s.stamp}</span></div></div>`);
+    const card = r.firstElementChild, mouth = q(r, '.mouth'), st = r.lastElementChild;
+    return { root: r, update(lt, d, t) { slide(card, lt, 0, 0, 180); mouth.style.height = (10 + 26 * Math.abs(Math.sin(t * 13))) + 'px'; pop(st, lt, d * 0.58, 0.3, 'rotate(-4deg)'); } };
+  },
+  profile(s) {
+    const r = el(`<div class="scene"><div class="av" style="position:absolute;left:290px;top:40px;width:500px;height:500px;border-radius:50%;border:14px solid var(--acc);overflow:hidden;background:#161A22;display:flex;align-items:flex-end;justify-content:center">${PERSON('#596273', 1.35)}</div>
+      <div class="sw" style="position:absolute;left:290px;top:40px;width:500px;height:500px;border-radius:50%;overflow:hidden"><div style="position:absolute;left:0;width:100%;height:90px;background:linear-gradient(rgba(255,122,26,0),rgba(255,122,26,.45),rgba(255,122,26,0))"></div></div>
+      <div class="c big" style="top:590px;font-size:84px">${s.name}</div>
+      <div class="c" style="top:740px"><span class="stamp fit" data-w="900" style="position:static;display:inline-block;font-size:110px">${s.stamp}</span></div></div>`);
+    const [av, sw, nm, st] = r.children, beam = sw.firstElementChild;
+    return { root: r, update(lt, d, t) { pop(av, lt, 0.05); sw.style.opacity = on(lt, 0.3); beam.style.top = ((lt * 420) % 590 - 90) + 'px'; slide(nm, lt, 0.2); pop(st, lt, d * 0.52, 0.3, 'rotate(-4deg)'); } };
+  },
+  sms(s) {
+    const r = el(`<div class="scene"><div class="card" style="left:80px;top:60px;width:920px;padding:44px 50px 54px">
+        <div style="display:flex;align-items:center;gap:22px"><div style="width:90px;height:90px;border-radius:24px;background:var(--grn);display:flex;align-items:center;justify-content:center"><svg width="52" height="46" viewBox="0 0 52 46"><path d="M4 4 H48 V32 H26 L14 43 V32 H4 Z" fill="#0A0B10"/></svg></div>
+          <div><div style="font-size:52px;font-weight:700">${s.from}</div><div style="font-size:34px;color:var(--mut);font-weight:500">ข้อความใหม่ เมื่อสักครู่</div></div></div>
+        <div style="margin-top:36px;font-size:60px;font-weight:600;line-height:1.3">${s.text}</div>
+        <div class="lk" style="margin-top:26px;font-size:60px;font-weight:700;color:#4DA3FF;text-decoration:underline">${s.link}</div></div>
+      <div class="c" style="top:760px"><span class="stamp fit" data-w="980" style="position:static;display:inline-block">${s.stamp}</span></div></div>`);
+    const card = r.firstElementChild, lk = q(r, '.lk'), st = r.lastElementChild;
+    return { root: r, update(lt, d, t) { slide(card, lt, 0, 0, -220, 0.4); lk.style.opacity = 0.55 + 0.45 * Math.abs(Math.sin(t * 6)); pop(st, lt, d * 0.58, 0.3, 'rotate(-4deg)'); } };
+  },
+};
+
+TYPES.island = function (s) {
+  const r = el(`<div class="scene">
+    <svg width="1080" height="640" viewBox="0 0 1080 640" style="position:absolute;top:20px">
+      <g class="wv" fill="none" stroke="#2EC4D6" stroke-width="14" stroke-linecap="round" opacity=".55">
+        <path d="M60 520 q45 -34 90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0"/>
+        <path d="M20 590 q45 -34 90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0 t90 0"/>
+      </g>
+      <path class="land" d="M250 470 Q330 330 470 350 Q560 290 660 360 Q790 350 840 470 Z" fill="#FFC83D"/>
+      <g class="palm"><path d="M560 350 Q548 250 572 170" fill="none" stroke="#8a5a2b" stroke-width="20" stroke-linecap="round"/>
+        <g fill="none" stroke="#37D67A" stroke-width="20" stroke-linecap="round"><path d="M572 170 Q500 120 430 160"/><path d="M572 170 Q650 110 720 150"/><path d="M572 170 Q540 90 470 70"/><path d="M572 170 Q620 80 690 60"/><path d="M572 170 Q580 110 572 60"/></g></g>
+    </svg>
+    <div class="c big acc" style="top:680px;font-size:140px"><span class="fit" data-w="980">${s.name}</span></div>
+    <div class="c" style="top:860px"><span class="chip fit" data-w="960" style="font-size:60px">${s.note}</span></div></div>`);
+  const svg = r.firstElementChild, land = q(r, '.land'), palm = q(r, '.palm'), wv = q(r, '.wv'), nm = r.children[1], note = r.children[2];
+  return { root: r, update(lt, d, t) {
+    wv.setAttribute('transform', `translate(${Math.sin(t * 2) * 26},0)`);
+    const k = back(lt / 0.5); land.setAttribute('transform', `translate(0,${(1 - k) * 220})`); palm.setAttribute('transform', `translate(0,${(1 - k) * 220}) rotate(${Math.sin(t * 2.4) * 2.5} 560 350)`);
+    pop(nm, lt, d * 0.3); pop(note.firstElementChild, lt, d * 0.55);
+  } };
+};
+TYPES.map = function (s) {
+  const r = el(`<div class="scene">
+    <svg width="1080" height="620" viewBox="0 0 1080 620" style="position:absolute;top:40px">
+      <ellipse cx="540" cy="330" rx="470" ry="250" fill="#0f2a42" stroke="#1f4666" stroke-width="6"/>
+      <path d="M70 330 H1010 M540 80 V580" stroke="#1f4666" stroke-width="4"/>
+      <ellipse cx="540" cy="330" rx="230" ry="250" fill="none" stroke="#1f4666" stroke-width="4"/>
+      <path class="arc" d="M840 300 Q540 20 240 360" fill="none" stroke="#FFC83D" stroke-width="12" stroke-linecap="round" stroke-dasharray="26 22"/>
+      <circle class="pa" cx="840" cy="300" r="26" fill="#2EC4D6"/><circle class="pb" cx="240" cy="360" r="26" fill="#FFC83D"/>
+    </svg>
+    <div class="la big" style="position:absolute;left:760px;top:390px;font-size:64px;color:var(--red)">${s.a}</div>
+    <div class="lb big acc" style="position:absolute;left:130px;top:450px;font-size:64px">${s.b}</div>
+    <div class="c big" style="top:740px;font-size:104px"><span class="fit" data-w="980">${s.note}</span></div></div>`);
+  const arc = q(r, '.arc'), pa = q(r, '.pa'), pb = q(r, '.pb'), la = q(r, '.la'), lb = q(r, '.lb'), note = r.lastElementChild;
+  return { root: r, update(lt, d, t) {
+    arc.setAttribute('stroke-dashoffset', -t * 60); arc.setAttribute('opacity', eo((lt - d * 0.3) / 0.4));
+    pa.setAttribute('r', 26 + 6 * Math.sin(t * 6)); pb.setAttribute('r', 26 + 6 * Math.sin(t * 6 + 2));
+    pop(la, lt, 0.1); pop(lb, lt, d * 0.3); pop(note, lt, d * 0.6);
+  } };
+};
+
+TYPES.list = function (s) {
+  const r = el(`<div class="scene"><div class="c big" style="top:60px;font-size:92px"><span class="fit" data-w="1000">${s.head}</span></div>
+    ${s.items.map((it, i) => `<div class="row" style="position:absolute;left:70px;top:${260 + i * 200}px;width:940px;display:flex;align-items:center;gap:30px"><svg width="100" height="100" viewBox="0 0 170 170"><circle cx="85" cy="85" r="70" fill="#3DDC97"/><path d="M54 88 L78 112 L120 62" fill="none" stroke="#07140f" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/></svg><div style="font-size:64px;font-weight:700;line-height:1.25"><span class="fit" data-w="790">${it}</span></div></div>`).join('')}</div>`);
+  const head = r.firstElementChild, rows = qa(r, '.row');
+  return { root: r, update(lt, d) { slide(head, lt, 0, 0, -50); rows.forEach((row, i) => slide(row, lt, d * (0.16 + 0.22 * i), -90, 0)); } };
+};
+TYPES.formula = function (s) {
+  const r = el(`<div class="scene">${s.parts.map((p, i) => `<div class="c pt" style="top:${40 + i * 190}px"><span class="chip fit" data-w="820" style="font-size:76px;padding:26px 60px">${p}</span></div>${i < s.parts.length - 1 ? `<div class="c big acc pl" style="top:${40 + i * 190 + 118}px;font-size:80px;line-height:1">+</div>` : ''}`).join('')}
+    <div class="c big eq" style="top:${40 + s.parts.length * 190 - 30}px;font-size:90px;line-height:1">=</div>
+    <div class="c res" style="top:${40 + s.parts.length * 190 + 90}px"><span class="stamp fit" data-w="900" style="position:static;display:inline-block;font-size:150px;border-color:var(--red);color:var(--red)">${s.result}</span></div></div>`);
+  const pts = qa(r, '.pt'), pls = qa(r, '.pl'), eq = q(r, '.eq'), res = q(r, '.res');
+  return { root: r, update(lt, d) { pts.forEach((p, i) => pop(p.firstElementChild, lt, 0.05 + d * 0.14 * i)); pls.forEach((p, i) => p.style.opacity = on(lt, 0.05 + d * 0.14 * (i + 1) - 0.05)); eq.style.opacity = on(lt, d * 0.5); pop(res.firstElementChild, lt, d * 0.56, 0.35, 'rotate(-3deg)'); } };
+};
+TYPES.loop = function (s) {
+  const P = [[540, 150], [840, 620], [240, 620]];
+  const r = el(`<div class="scene"><svg width="1080" height="800" viewBox="0 0 1080 800" style="position:absolute;top:0">
+      <g fill="none" stroke="#1f4a39" stroke-width="12"><path d="M620 210 Q780 330 815 520"/><path d="M740 660 H340"/><path d="M265 520 Q300 330 460 210"/></g>
+      <g class="ar" fill="none" stroke="#FFC83D" stroke-width="14" stroke-linecap="round" stroke-dasharray="30 26"><path d="M620 210 Q780 330 815 520"/><path d="M740 660 H340"/><path d="M265 520 Q300 330 460 210"/></g>
+    </svg>
+    ${s.nodes.map((n, i) => `<div class="nd" style="position:absolute;left:${P[i][0] - 190}px;top:${P[i][1] - 70}px;width:380px;text-align:center"><span class="chip fit" data-w="380" style="font-size:58px;padding:24px 34px">${n}</span></div>`).join('')}
+    <div class="c big acc" style="top:840px;font-size:104px"><span class="fit" data-w="980">${s.note}</span></div></div>`);
+  const ar = q(r, '.ar'), nds = qa(r, '.nd'), note = r.lastElementChild;
+  return { root: r, update(lt, d, t) {
+    ar.setAttribute('stroke-dashoffset', -t * 90);
+    const act = Math.floor((lt / d) * 6) % 3;
+    nds.forEach((n, i) => { pop(n.firstElementChild, lt, 0.05 + d * 0.1 * i); const c = n.firstElementChild; c.style.borderColor = i === act ? '#3DDC97' : '#1f4a39'; c.style.color = i === act ? '#3DDC97' : '#fff'; });
+    pop(note, lt, d * 0.6);
+  } };
+};
+TYPES.graph = function (s) {
+  const N = [[540, 90, 'เริ่ม'], [540, 300, 'ตรวจคำถาม'], [270, 520, 'ตอบเองได้'], [810, 520, 'เรียกเครื่องมือ'], [540, 740, 'ให้คนอนุมัติ']];
+  const E = [[0, 1], [1, 2], [1, 3], [2, 4], [3, 4]];
+  const r = el(`<div class="scene"><svg width="1080" height="820" viewBox="0 0 1080 820" style="position:absolute;top:0">
+      ${E.map(([a, b]) => `<line class="ed" x1="${N[a][0]}" y1="${N[a][1] + 46}" x2="${N[b][0]}" y2="${N[b][1] - 46}" stroke="#FFC83D" stroke-width="10" stroke-linecap="round" opacity="0"/>`).join('')}
+    </svg>
+    ${N.map((n, i) => `<div class="nd" style="position:absolute;left:${n[0] - 200}px;top:${n[1] - 46}px;width:400px;text-align:center"><span class="chip fit" data-w="390" style="font-size:46px;padding:18px 28px;${i === 4 ? 'border-color:#3DDC97;color:#3DDC97' : ''}">${n[2]}</span></div>`).join('')}
+    <div class="c big acc" style="top:860px;font-size:100px"><span class="fit" data-w="980">${s.note}</span></div></div>`);
+  const eds = qa(r, '.ed'), nds = qa(r, '.nd'), note = r.lastElementChild;
+  const order = [0, 1, 2, 3, 4];
+  return { root: r, update(lt, d) {
+    nds.forEach((n, i) => pop(n.firstElementChild, lt, 0.05 + d * 0.11 * order[i]));
+    eds.forEach((e, i) => e.setAttribute('opacity', eo((lt - (0.12 + d * 0.11 * (E[i][1]))) / 0.2)));
+    pop(note, lt, d * 0.68);
+  } };
+};
+
+TYPES.cmds = function (s) {
+  const one = s.items.length === 1;
+  const r = el(`<div class="scene"><div class="c" style="top:30px"><span class="chip acc fit" data-w="900" style="font-size:64px;border-color:var(--acc)">${s.group}</span></div>
+    ${s.items.map((it, i) => `<div class="card cm" style="left:70px;top:${(one ? 320 : 210) + i * 380}px;width:940px;height:340px;padding:44px 50px;border-color:var(--red)">
+      <div style="font-family:Consolas,'Courier New',monospace;font-weight:700;font-size:84px;color:var(--grn);white-space:nowrap"><span class="fit" data-w="840"><span style="color:var(--mut)">$ </span>${it.c.replace(/</g, '&lt;')}</span></div>
+      <div class="big" style="font-size:64px;margin-top:26px"><span class="fit" data-w="840">${it.d}</span></div></div>`).join('')}</div>`);
+  const head = r.firstElementChild, cards = qa(r, '.cm');
+  return { root: r, update(lt, d) { pop(head.firstElementChild, lt, 0.02); cards.forEach((c, i) => slide(c, lt, one ? d * 0.08 : d * (0.05 + 0.4 * i), 0, 120)); } };
+};
+
+TYPES.term = function (s) {
+  const COL = { mut: 'var(--mut)', grn: 'var(--grn)', acc: 'var(--acc)', red: 'var(--red)', ink: '#fff' };
+  const h = 150 + s.lines.length * 104;
+  const r = el(`<div class="scene"><div class="card tw" style="left:60px;top:40px;width:960px;height:${h}px;padding:0;background:#0b0907;border-color:var(--line);overflow:hidden">
+      <div style="height:84px;background:#1d1611;display:flex;align-items:center;gap:18px;padding-left:36px"><i style="width:26px;height:26px;border-radius:50%;background:#F4683A"></i><i style="width:26px;height:26px;border-radius:50%;background:#FFC83D"></i><i style="width:26px;height:26px;border-radius:50%;background:#3DDC97"></i><span style="margin-left:24px;font-family:Consolas,'Courier New',monospace;font-size:38px;color:var(--mut)">${s.title || 'claude'}</span></div>
+      ${s.lines.map(l => `<div class="ln" style="padding:0 44px;height:104px;line-height:104px;position:relative;top:22px;font-family:Consolas,'Courier New',monospace;font-weight:700;font-size:64px;white-space:pre;color:${COL[l.c || 'ink']}"><span class="fit" data-w="870" data-t="${l.t.replace(/</g, '&lt;').replace(/"/g, '&quot;')}">${l.t.replace(/</g, '&lt;').replace('{n}', '3')}</span></div>`).join('')}</div>
+    <div class="c big acc" style="top:${h + 110}px;font-size:96px;line-height:1.25"><span class="fit" data-w="980">${s.foot}</span></div>
+    ${s.foot2 ? `<div class="c big" style="top:${h + 250}px;font-size:80px"><span class="fit" data-w="980">${s.foot2}</span></div>` : ''}</div>`);
+  const card = r.firstElementChild, lns = qa(r, '.ln'), foot = r.children[1], foot2 = r.children[2];
+  const cnt = qa(r, '.fit').filter(x => (x.dataset.t || '').includes('{n}'));
+  return { root: r, update(lt, d) {
+    slide(card, lt, 0, 0, 120);
+    lns.forEach((l, i) => l.style.opacity = on(lt, 0.15 + d * 0.13 * i));
+    const n = Math.max(1, Math.min(3, 1 + Math.floor((lt - d * 0.3) / (d * 0.2))));
+    cnt.forEach(x => x.textContent = x.dataset.t.replace('{n}', n));
+    pop(foot, lt, d * 0.5); if (foot2) pop(foot2, lt, d * 0.7);
+  } };
+};
+
+let SC = [];
+window.init = function (TL) {
+  const host = document.getElementById('scenes');
+  SC = TL.map(l => { const s = TYPES[l.scene.type](l.scene); host.appendChild(s.root); return s; });
+  // ย่อฟอนต์ของข้อความที่ยาวเกินกรอบ
+  for (const f of document.querySelectorAll('.fit')) {
+    const max = +f.dataset.w; let size = parseFloat(getComputedStyle(f).fontSize);
+    while (f.getBoundingClientRect().width > max && size > 30) { size -= 2; f.style.fontSize = size + 'px'; }
+  }
+  SC.forEach(s => s.root.style.display = 'none');
+  window.TIMELINE = TL;
+};
+
+// Kosin 11/10/2026 ซับทีละวลีตามที่คั่นไว้ในบท แบ่งเวลาตามความยาววลี (ตัวเลขอ่านนานกว่าตัวอักษร จึงนับหนักกว่า)
+function subAt(line, lt) {
+  // เวลาเริ่มของแต่ละวลีมาจากเสียงจริง (line.subs[].t เป็นเวลารวมของคลิป)
+  const t = lt + line.start; let g = line.subs[0];
+  for (const x of line.subs) if (x.t <= t) g = x;
+  return g;
+}
+
+window.renderAt = function (t) {
+  const TL = window.TIMELINE, total = window.TOTAL;
+  let i = 0;
+  while (i < TL.length - 1 && t >= TL[i + 1].start - 0.06) i++;
+  const line = TL[i];
+  const sStart = i === 0 ? 0 : line.start - 0.06, sEnd = i === TL.length - 1 ? total : TL[i + 1].start - 0.06;
+  const lt = t - sStart, d = sEnd - sStart;
+  SC.forEach((s, k) => s.root.style.display = k === i ? 'block' : 'none');
+  SC[i].root.style.transform = `scale(${1 + 0.035 * lt / d})`;
+  SC[i].update(lt, d, t);
+  const g = document.getElementById('glow');
+  g.style.transform = `translate(${Math.sin(t * 0.5) * 60}px,${Math.cos(t * 0.4) * 50}px)`; g.style.opacity = 0.17 + 0.05 * Math.sin(t * 1.7);
+  document.getElementById('flash').style.opacity = i > 0 && lt < 0.1 ? 0.2 * (1 - lt / 0.1) : 0;
+  document.getElementById('bar').style.width = (1080 * t / total) + 'px';
+  const s = subAt(line, Math.max(0, t - line.start)), sub = document.getElementById('sub');
+  sub.textContent = t < line.end + 0.25 ? s.text : '';
+  sub.className = s.em ? 'em' : '';
+  sub.style.transform = '';
+  const sw = sub.scrollWidth; if (sw > 1000) sub.style.transform = `scale(${1000 / sw})`;
+};
+</script>
+</body>
+</html>

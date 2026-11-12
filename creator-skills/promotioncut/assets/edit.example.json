@@ -1,0 +1,52 @@
+{
+  "_note": "โครงตัวอย่าง ยังไม่ครบ: ช่วงบีต 28-47 และ 55-75 ต้องเติมช็อตให้ครบทุกบีตก่อนใช้จริง ไม่งั้นช็อตก่อนหน้าจะยาวค้างจนถึงช็อตถัดไป ค่า grid ต้องมาจาก pc_beat.py grid ของเพลงจริง",
+  "fps": 25,
+  "size": [1080, 1080],
+  "window": [1080, 567, 0, 264],
+  "frame": "frame.png",
+  "bg": "#04020f",
+  "card_bg": "#ffffff",
+  "music": "music.wav",
+  "music_offset": 0.0,
+  "grid": { "bpm": 100.0, "first_downbeat": 0.0 },
+  "grade": "navy",
+  "loudness": { "I": -14, "TP": -1.5 },
+  "end": 84,
+  "shots": [
+    { "at": 0,  "src": "cards/open.png" },
+
+    { "at": 4,  "src": "footage/crowd_wide.mp4",   "in": 3.0,  "fx": "flash" },
+    { "at": 6,  "src": "footage/robot.mp4",        "in": 1.5 },
+    { "at": 8,  "src": "footage/registration.mp4", "in": 7.2,  "fx": "rgb" },
+    { "at": 10, "src": "footage/matching_1.mp4",   "in": 0.8 },
+    { "at": 11, "src": "footage/matching_2.mp4",   "in": 4.0 },
+    { "at": 12, "src": "footage/matching_3.mp4",   "in": 2.2 },
+    { "at": 13, "src": "footage/matching_4.mp4",   "in": 5.5 },
+
+    { "at": 14, "until": 16,
+      "run": ["logos/01.png", "logos/02.png", "logos/03.png", "logos/04.png",
+              "logos/05.png", "logos/06.png", "logos/07.png", "logos/08.png"] },
+
+    { "at": 16, "src": "cards/title.png", "fx": "rgb" },
+
+    { "at": 20, "src": "footage/stage_wide.mp4",   "in": 12.0, "fx": "punch" },
+    { "at": 21, "src": "footage/speaker_1.mp4",    "in": 30.5 },
+    { "at": 22, "src": "footage/panel.mp4",        "in": 8.0 },
+    { "at": 23, "src": "footage/speaker_2.mp4",    "in": 3.3 },
+    { "at": 24, "src": "footage/booth_a.mp4",      "in": 6.0,  "fx": "flash" },
+    { "at": 25, "src": "footage/product_a.mp4",    "in": 1.0 },
+    { "at": 25.5, "src": "footage/product_b.mp4",  "in": 2.0 },
+    { "at": 26, "src": "footage/booth_b.mp4",      "in": 9.4 },
+    { "at": 27, "src": "footage/people_talk.mp4",  "in": 14.0 },
+
+    { "at": 48, "src": "footage/audience.mp4",     "in": 5.0,  "fx": "blur" },
+    { "at": 50, "src": "footage/crowd_aisle.mp4",  "in": 2.0 },
+
+    { "at": 52, "src": "footage/demo_1.mp4",       "in": 4.0,  "fx": "punch" },
+    { "at": 53, "src": "footage/demo_2.mp4",       "in": 7.5 },
+    { "at": 54, "src": "footage/screen_1.mp4",     "in": 0.5 },
+    { "at": 76, "src": "footage/group_photo.mp4",  "in": 1.2,  "fx": "flash" },
+
+    { "at": 80, "src": "cards/end.png", "fx": "flash" }
+  ]
+}

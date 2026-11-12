@@ -1,0 +1,41 @@
+# secrets and credentials
+.env*
+*.env
+*.pem
+*.key
+*accessKeys*.csv
+
+# python
+__pycache__/
+*.pyc
+
+# node
+node_modules/
+
+# work folders that pc_build.py creates next to the output file
+*_pcwork/
+
+# media: footage, music, renders and rendered cards stay out of the repo
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.aac
+*.flac
+*.png
+*.jpg
+*.jpeg
+# the README hero image is the one exception
+!docs/*-hero.jpg
+
+# editor and OS junk
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

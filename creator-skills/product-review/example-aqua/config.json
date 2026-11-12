@@ -1,0 +1,16 @@
+{
+ "name": "HOVERAir_AQUA_Review_TH",
+ "title": ["HOVERAir", "AQUA"],
+ "subtitle": "รีวิวละเอียด  โดรนที่ลงน้ำได้จริง",
+ "credit": "โกสินทร์ต้องบินได้",
+ "end_note": "ภาพและวิดีโอประกอบ: HOVERAir (hoverair.com)  ·  เพลง: Ezra Lipp, Jimena Contreras",
+ "accent": [255, 107, 20],
+ "voice": "th-TH-NiwatNeural", "rate": "+6%",
+ "bgm": ["$MEDIA/bgm/Ready for More - Ezra Lipp.mp3",
+         "$MEDIA/bgm/The Journey Ahead - Ezra Lipp.mp3",
+         "$MEDIA/bgm/Alien or Cake - Jimena Contreras.mp3"],
+ "bgm_skip": 16, "bgm_vol": 0.55, "crf": 20,
+ "crop": {"02": [{"from": 88, "to": 104, "z": 1.34, "anchor": "left"},
+                 {"from": 111, "to": 124, "z": 1.34, "anchor": "left"},
+                 {"z": 1.12}]}
+}

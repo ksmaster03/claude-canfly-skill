@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- กรอบโฆษณา 1:1 ที่มีช่องโปร่งใสตรงกลางให้วิดีโอโผล่
+     เรนเดอร์เป็น PNG โปร่งใสด้วย scripts/pc_card.py แล้วส่งให้ pc_build.py ซ้อนทับฟุตเทจ
+     ข้อความทั้งหมดมาจากไฟล์ data.json (คีย์ตรงกับ data-k) ไม่ต้องแก้ไฟล์นี้ -->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --size: 1080px;
+    --win-y: 264px;          /* ขอบบนของช่องวิดีโอ */
+    --win-h: 567px;          /* ความสูงช่องวิดีโอ ราว 52% ของเฟรม */
+    --bg1: #0b0828;
+    --bg2: #3b1466;
+    --text: #ffffff;
+    --accent: #3be8ff;
+    --cta-bg: #ffffff;
+    --cta-text: #2a0f6b;
+    --font: 'Prompt', 'Leelawadee UI', Tahoma, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: var(--size); height: var(--size); background: transparent; overflow: hidden; }
+  body { font-family: var(--font); color: var(--text); position: relative; }
+
+  .band { position: absolute; left: 0; width: 100%; }
+  .top {
+    top: 0; height: var(--win-y);
+    background: linear-gradient(120deg, var(--bg1) 0%, var(--bg1) 45%, var(--bg2) 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 18px 48px 22px;
+  }
+  .bottom {
+    top: calc(var(--win-y) + var(--win-h)); bottom: 0;
+    background: linear-gradient(300deg, var(--bg1) 0%, var(--bg1) 45%, var(--bg2) 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px; padding: 0 54px;
+  }
+  /* เส้นเรืองขอบบนล่างของช่องวิดีโอ */
+  .top::after, .bottom::before {
+    content: ''; position: absolute; left: 0; width: 100%; height: 6px;
+    background: linear-gradient(90deg, var(--bg2), var(--accent), var(--bg2)); opacity: .85;
+  }
+  .top::after { bottom: 0; }
+  .bottom::before { top: 0; }
+
+  .logos { display: flex; align-items: center; justify-content: center; gap: 36px; min-height: 0; }
+  .logos img { height: 62px; width: auto; display: block; }
+  .logos:empty { display: none; }
+
+  .headline { text-align: center; font-weight: 600; font-size: 44px; line-height: 1.32; }
+  .headline .l2 { font-size: 38px; }
+  b { color: var(--accent); font-weight: 700; }
+  [data-k]:empty { display: none; }
+
+  .info { min-width: 0; }
+  .date { color: var(--accent); font-weight: 700; font-size: 36px; line-height: 1.3; }
+  .venue { font-weight: 400; font-size: 26px; line-height: 1.45; margin-top: 6px; }
+  .cta {
+    flex: none; background: var(--cta-bg); color: var(--cta-text);
+    font-weight: 700; font-size: 30px; line-height: 1; white-space: nowrap;
+    padding: 20px 30px; border-radius: 14px;
+    box-shadow: 0 0 0 3px var(--accent), 0 0 26px rgba(59, 232, 255, .55);
+  }
+</style>
+</head>
+<body>
+  <div class="band top">
+    <div class="logos" data-imgs="logos"></div>
+    <div class="headline">
+      <div class="l1" data-k="headline1">พาดหัวบรรทัดแรก เน้นคำด้วย *ดอกจัน*</div>
+      <div class="l2" data-k="headline2">ชื่องานหรือชื่อแคมเปญ</div>
+    </div>
+  </div>
+  <div class="band bottom">
+    <div class="info">
+      <div class="date" data-k="date">วันที่จัดงาน</div>
+      <div class="venue" data-k="venue">สถานที่บรรทัดแรก\nสถานที่บรรทัดสอง</div>
+    </div>
+    <div class="cta" data-k="cta">ลงทะเบียนฟรี</div>
+  </div>
+
+<script>
+  // pc_card.py ฉีด window.PC = { ...data.json } ก่อนหน้านี้โหลด
+  // ในข้อความ: *คำ* = สีเน้น, \n = ขึ้นบรรทัดใหม่  คีย์ที่เป็น "" จะซ่อนบล็อกนั้น
+  (function () {
+    var d = window.PC || {};
+    var esc = function (s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    };
+    var rich = function (s) {
+      return esc(s).replace(/\*([^*]+)\*/g, '<b>$1</b>').replace(/\\n|\n/g, '<br>');
+    };
+    document.querySelectorAll('[data-k]').forEach(function (el) {
+      var k = el.getAttribute('data-k');
+      el.innerHTML = rich(k in d ? d[k] : el.textContent);
+    });
+    document.querySelectorAll('[data-imgs]').forEach(function (el) {
+      (d[el.getAttribute('data-imgs')] || []).forEach(function (src) {
+        var im = document.createElement('img'); im.src = src; el.appendChild(im);
+      });
+    });
+    Object.keys(d.vars || {}).forEach(function (k) {
+      document.documentElement.style.setProperty('--' + k, d.vars[k]);
+    });
+  })();
+</script>
+</body>
+</html>

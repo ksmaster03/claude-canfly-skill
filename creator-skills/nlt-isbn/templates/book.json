@@ -1,0 +1,46 @@
+{
+  "_comment": "ตัวอย่างจริงจากเล่ม หัวมันตัน ก็วาดออกมาสิ (คำร้อง 372387, 30/09/2569) — คัดลอกไปไว้ในโฟลเดอร์ <book>/isbn/book.json แล้วแก้",
+  "title": "หัวมันตัน ก็วาดออกมาสิ",
+  "subtitle": "Visual Thinking คิดเป็นภาพ ทักษะที่ AI ยังแย่งไปไม่ได้",
+  "author_title": "นาย",
+  "author_name": "โกสินทร์ แสงทอง",
+  "pen_name": "โกสินทร์ต้องบินได้",
+  "edition": "1",
+  "edition_month_th": "ตุลาคม",
+  "year_be": "2569",
+  "pages": 145,
+  "price": 229,
+  "url": "https://myweekend.fun/ebooks/visual-thinking-hua-man-tan",
+  "print_date": "15/10/2569",
+  "publication_date": "15/10/2569",
+  "want_cip": false,
+  "book_pdf": "$PROJECTS/visual-thinking-ebook/dist/visual-thinking-hua-man-tan.pdf",
+  "cover_pages": [
+    1,
+    3
+  ],
+  "toc_pages": [
+    4
+  ],
+  "abstract": "ข้อความเรื่องย่อ 1 ย่อหน้า (ใช้คำอธิบายหน้าร้านได้)",
+  "dbd_cert_pdf": "<your-project>/gen_spec.py Sangtong_SignedandStampt.pdf",
+  "isbn": "",
+  "publisher": {
+    "juristic": true,
+    "name_th": "<ชื่อบริษัท (ไทย)>",
+    "name_en": "<Company Co., Ltd.>",
+    "address_no": "",
+    "moo": "",
+    "soi": "",
+    "road": "",
+    "province": "",
+    "district": "",
+    "subdistrict": "",
+    "zip": "",
+    "phone": "",
+    "mobile": "",
+    "email": "",
+    "web": "",
+    "nlt_org_search": "<คำค้นชื่อสำนักพิมพ์ในระบบ NLT>"
+  }
+}

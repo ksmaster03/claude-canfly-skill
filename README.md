@@ -44,6 +44,7 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 | E   | `people-skills/`    | สกิลสำหรับเข้าใจและทำงานร่วมกับคนแต่ละประเภท ครอบคลุม MBTI 16 แบบ, DISC 4 แบบ, Enneagram 9 แบบ, CliftonStrengths 34 แบบ และราศี 12 แบบ | 75    |
 | F   | `sdlc-skills/`      | พัฒนาซอฟต์แวร์ครบวงจรแบบ SDLC + Agile — ตัวขับเคลื่อน `/sdlc-agile` 1 ตัว + sub-skill รายเฟส (requirement, FR/NFR, business logic, design, auth/SoD, threat model, dev, test, regression, security test, pen test, deploy, monitoring) | 16    |
 | G   | `craft-skills/`     | **สกิลจากงานจริง** ที่ใช้กับ Claude Code ทุกวัน — ดีบั๊ก รีวิวโค้ด deploy AWS ออดิตความปลอดภัย ตัดต่อวิดีโอ ทำรีล มาสเตอร์เสียง และปั้น ebook (ไม่ได้เขียนจากเทมเพลต แต่ตกผลึกจากงานที่ทำเสร็จจริง) | 23    |
+| H   | `creator-skills/`   | **สกิลสายครีเอเตอร์จากงานจริง** สำหรับ Claude Code: ศึกษาคลิปคนอื่น เขียนบท พากย์เสียง ทำคลิปแปลเพลง คลิปอธิบาย ปกคลิป โพสต์ตั้งเวลา และขอ ISBN ให้ ebook | 44    |
 | —   | `standard/`         | สกิลชุด A–F ในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้งใช้งาน                                                                        | 233   |
 
 ---
@@ -127,6 +128,22 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 
 ---
 
+## ชุด H · สกิลสายครีเอเตอร์ (Creator Skills)
+
+สกิลทำคอนเทนต์ครบสายที่ใช้ปล่อยคลิปจริงช่วง ต.ค. ถึง พ.ย. 2569 ตั้งแต่ศึกษาคลิปคนอื่น เขียนบท พากย์เสียง ตัดต่อ ทำปก ไปจนถึงโพสต์ตั้งเวลา
+
+| กลุ่ม | สกิล |
+| --- | --- |
+| คลิปสั้น | `explainreel` `msinterview` `newsreel` `techaireel` `darkui-repo-reel` `repo-swap-reel` `mv-reel` `musicmv` `musicvideo` `promotioncut` `stills-to-promo-clip` `product-review` `fightfilm` `song-release` `clipcover` `reel-edit-layers` `talkinghead-edit-skills` `reelpost` `page-study` |
+| เสียง/เพลง | `lumina-script` `sunobridge` |
+| ภาพ/สไลด์/เอกสาร | `cartoonflow` `html-deck` `prom-design` `human-docx` `vibe-ui-sources` `ui-measure-audit` |
+| หนังสือ/ธุรกิจ | `nlt-isbn` `fastwork-listing` `craft-boq` `stockanalysis` `azure-price-lookup` `excel-com-recalc` |
+| เครื่องมือ/ระบบ | `panya-memory` `panya-skills` `panya-sync` `repo-readme` `oss-swap-tools` `blender-mcp-setup` `windows-autostart` `windows-update-restart-fix` `progress-bar` |
+
+รายละเอียดและตัวแปร path ที่ต้องตั้งเอง อยู่ใน [`creator-skills/README.md`](creator-skills/README.md)
+
+---
+
 ## วิธีติดตั้งใช้งาน
 
 ติดตั้งสกิลทั้งหมดเข้า Claude Code ด้วยคำสั่ง
@@ -134,6 +151,7 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 ```bash
 cp -r standard/* ~/.claude/skills/
 cp -r craft-skills/* ~/.claude/skills/   # ชุด G (สกิลจากงานจริง)
+cp -r creator-skills/* ~/.claude/skills/ # ชุด H (สกิลสายครีเอเตอร์)
 ```
 
 หากต้องการติดตั้งเฉพาะบางสกิล สามารถเลือกโฟลเดอร์ที่ต้องการได้ เช่น
@@ -181,6 +199,7 @@ claude-canfly-skill/
   people-skills/          ชุด E: สกิลสำหรับเข้าใจและทำงานกับคนแต่ละประเภท
   sdlc-skills/            ชุด F: พัฒนาซอฟต์แวร์ครบวงจร SDLC + Agile (/sdlc-agile + รายเฟส)
   craft-skills/           ชุด G: สกิลจากงานจริงที่ใช้กับ Claude Code (ดีบั๊ก/deploy/วิดีโอ/ebook)
+  creator-skills/         ชุด H: สกิลสายครีเอเตอร์ (คลิปสั้น/เสียง/ปก/โพสต์/ISBN)
   skill-router/           เครื่องมือ: เลือกสกิลจากประโยคสนทนา
   skill-scout/            เครื่องมือ: หา ศึกษา และเติมสกิลจาก GitHub
   skill-catalog.md        ดัชนีสกิลทั้งหมด (router/scout ใช้แมตช์)

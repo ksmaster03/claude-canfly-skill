@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>clip cover</title>
+<style>
+  /* แม่แบบปกคลิปแนวตั้ง 1080x1920  ข้อความหลักอยู่ในช่วง y 285 ถึง 1635 เพื่อรอดการครอป 4:5  ห้ามใส่ letter-spacing กับข้อความไทย */
+  :root { --y: #f5c518; --red: #e0262c; --ink: #0b0c0e; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; background: var(--ink); overflow: hidden; font-family: "Prompt", "Leelawadee UI", sans-serif; color: #fff; }
+  #bg { position: absolute; inset: -60px; background-size: cover; background-position: center; filter: blur(40px) brightness(.25) saturate(.7); }
+  .half { position: absolute; left: 0; top: 0; width: 1080px; height: 1130px; background-size: cover; }
+  #a { filter: saturate(.9) contrast(1.1) brightness(.92); }
+  #b { filter: saturate(1.0) contrast(1.08) brightness(.84); }
+  body.split #a { clip-path: polygon(0 0, 62% 0, 40% 100%, 0 100%); }
+  body.split #b { clip-path: polygon(62% 0, 100% 0, 100% 100%, 40% 100%); }
+  body.single #b, body.single #slash { display: none; }
+  #slash { position: absolute; left: 0; top: 0; width: 1080px; height: 1130px; background: var(--y); clip-path: polygon(61.2% 0, 62.8% 0, 40.8% 100%, 39.2% 100%); }
+  #fade { position: absolute; left: 0; top: 520px; width: 1080px; height: 620px; background: linear-gradient(180deg, rgba(11,12,14,0) 0%, rgba(11,12,14,.85) 62%, rgba(11,12,14,1) 100%); }
+  #top { position: absolute; left: 0; top: 0; width: 1080px; height: 260px; background: linear-gradient(180deg, rgba(11,12,14,.85), rgba(11,12,14,0)); }
+  .br { position: absolute; width: 60px; height: 60px; border: 4px solid rgba(255,255,255,.6); }
+  .tl { left: 44px; top: 44px; border-right: 0; border-bottom: 0; } .tr { right: 44px; top: 44px; border-left: 0; border-bottom: 0; }
+  .bl { left: 44px; bottom: 44px; border-right: 0; border-top: 0; } .brr { right: 44px; bottom: 44px; border-left: 0; border-top: 0; }
+  #tag { position: absolute; left: 124px; top: 62px; font: 600 30px "Prompt"; color: var(--y); }
+  #brand { position: absolute; right: 124px; top: 58px; font: 700 34px "Prompt"; text-shadow: 0 3px 10px rgba(0,0,0,.9); }
+  #stack { position: absolute; left: 0; right: 0; top: 722px; display: flex; flex-direction: column; align-items: center; }
+  #stamp { transform: rotate(-5deg); border: 9px solid var(--red); color: var(--red); background: rgba(11,12,14,.9); padding: 10px 44px 16px; font: 800 92px/1.15 "Prompt"; white-space: nowrap; margin-bottom: 44px; }
+  .ln { white-space: nowrap; paint-order: stroke fill; text-align: center; }
+  #la { font: 700 84px/1.25 "Prompt"; -webkit-text-stroke: 10px #000; }
+  #lb { font: 800 236px/1.12 "Prompt"; color: var(--y); -webkit-text-stroke: 16px #000; text-shadow: 0 12px 0 rgba(0,0,0,.55); }
+  #lc { font: 800 128px/1.2 "Prompt"; -webkit-text-stroke: 14px #000; margin-top: 22px; }
+  #chip { border: 4px solid var(--y); background: rgba(8,8,8,.92); padding: 16px 38px 20px; font: 700 52px/1.25 "Prompt"; white-space: nowrap; margin-top: 54px; }
+  #credit { position: absolute; left: 120px; right: 120px; bottom: 58px; text-align: center; font: 400 22px "Prompt"; color: rgba(255,255,255,.6); white-space: nowrap; overflow: hidden; }
+  .n { color: var(--y); }
+</style></head>
+<body class="single">
+<div id="bg"></div>
+<div class="half" id="a"></div><div class="half" id="b"></div><div id="slash"></div><div id="top"></div><div id="fade"></div>
+<div class="br tl"></div><div class="br tr"></div><div class="br bl"></div><div class="br brr"></div>
+<div id="tag"></div><div id="brand"></div>
+<div id="stack">
+  <div id="stamp"></div>
+  <div class="ln" id="la"></div><div class="ln" id="lb"></div><div class="ln" id="lc"></div>
+  <div id="chip"></div>
+</div>
+<div id="credit"></div>
+<script>
+// make_cover.py เรียก init(cfg) แล้วอ่านค่าที่คืนมาเพื่อรายงานว่าข้อความอยู่ในเขตปลอดภัยหรือไม่
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const num = s => esc(s).replace(/\d[\d,.]*\s?%?/g, m => `<span class="n">${m}</span>`);
+window.init = c => {
+  const imgs = [].concat(c.img || []), pos = [].concat(c.pos || []);
+  document.body.className = (c.layout === 'split' && imgs.length > 1) ? 'split' : 'single';
+  $('a').style.backgroundImage = $('bg').style.backgroundImage = `url("${imgs[0]}")`;
+  $('a').style.backgroundPosition = pos[0] || '50% 35%';
+  if (imgs[1]) { $('b').style.backgroundImage = `url("${imgs[1]}")`; $('b').style.backgroundPosition = pos[1] || '50% 50%'; }
+  $('tag').textContent = c.tag || ''; $('brand').textContent = c.brand || '';
+  for (const [id, k] of [['stamp', 'stamp'], ['la', 'a'], ['lb', 'b'], ['lc', 'c'], ['chip', 'chip']]) {
+    const el = $(id);
+    if (!c[k]) { el.style.display = 'none'; continue; }
+    el.innerHTML = (id === 'la' || id === 'lc' || id === 'chip') ? num(c[k]) : esc(c[k]);
+    // ย่อบรรทัดที่กว้างเกิน 980px ให้พอดี
+    const w = el.scrollWidth || el.getBoundingClientRect().width;
+    if (w > 980) el.style.fontSize = Math.floor(parseFloat(getComputedStyle(el).fontSize) * 980 / w) + 'px';
+  }
+  if (c.top) $('stack').style.top = c.top + 'px';
+  $('credit').textContent = c.credit || '';
+  const r = $('stack').getBoundingClientRect();
+  return { top: Math.round(r.top), bottom: Math.round(r.bottom), safe: r.top >= 285 && r.bottom <= 1635 };
+};
+</script>
+</body></html>
