@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8">
+<!-- เอนจินฉากของ /salereelclip  คนพูด (A-roll หรือภาพตัดพื้น) + แผงภาพครีมด้านบน + คีย์เวิร์ดส้มตัวใหญ่ + ซับวิ่งตัวเล็ก
+     ตัวเรนเดอร์เรียก window.init(lines, cfg) ครั้งเดียว แล้วเรียก await window.renderAt(t) ทีละเฟรม
+     ฟอนต์ Kanit ถูกฉีดเข้ามาจาก sr_render.py (อยู่ใน assets/fonts ของสกิล) -->
+<style>
+:root{
+  --cream:#F1EBDD; --orange:#E2582B; --orange-dk:#7A2E14; --orange-lt:#FFB08A;
+  --red:#D7261E; --red-dk:#5E0D0A; --ink:#1F1A16; --chip:#1F1A16;
+  --t1:#D7261E; --t2:#E2582B; --t3:#2EAD4B;
+  --capY:1330px; --panelH:780px;
+  --font:'Kanit','Prompt','Leelawadee UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000;font-family:var(--font);-webkit-font-smoothing:antialiased}
+.L{position:absolute;inset:0;overflow:hidden}
+#room{background:radial-gradient(ellipse 70% 45% at 30% 30%,#8a5a36 0%,rgba(138,90,54,0) 70%),radial-gradient(ellipse 60% 40% at 80% 55%,#5b3a24 0%,rgba(91,58,36,0) 70%),linear-gradient(180deg,#3a2718 0%,#24170e 55%,#120b06 100%)}
+#room i{position:absolute;border-radius:50%;filter:blur(18px)}
+#offerBg{display:none;background:linear-gradient(180deg,#FFFFFF 0%,#FCF4EC 34%,#F7B486 72%,#E8743A 100%)}
+#person{transform-origin:50% 45%}
+#person img{position:absolute;display:block}
+#person img.ar{left:0;top:0;width:1080px;height:1920px;object-fit:cover}
+#panel{display:none;height:var(--panelH);bottom:auto;background:var(--cream)}
+#panel.clear{background:transparent}
+#panel > div{position:absolute;inset:0}
+#card{display:none}
+#cap{pointer-events:none}
+.guide{position:absolute;background:rgba(0,170,255,.18);outline:2px dashed rgba(0,170,255,.7)}
+
+/* ---------- คำบรรยายบนจอ ---------- */
+#tb{position:absolute;left:50%;top:var(--capY);transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:stretch}
+#tb .pre{font-weight:500;font-size:56px;line-height:1.1;color:#fff;text-align:left;text-shadow:0 3px 10px rgba(0,0,0,.8),0 0 3px rgba(0,0,0,.9);white-space:nowrap}
+#tb .post{font-weight:500;font-size:56px;line-height:1.15;color:#fff;text-align:right;text-shadow:0 3px 10px rgba(0,0,0,.8),0 0 3px rgba(0,0,0,.9);white-space:nowrap}
+#tb .post b{font-weight:700;font-style:italic}
+#kw{white-space:nowrap;font-weight:800;line-height:1.08;text-align:center;color:var(--orange);
+    -webkit-text-stroke:2px rgba(255,226,208,.85);
+    text-shadow:0 6px 0 var(--orange-dk),0 14px 30px rgba(0,0,0,.55);transform-origin:50% 60%}
+#kw.red{color:var(--red);-webkit-text-stroke:2px rgba(255,214,210,.8);text-shadow:0 6px 0 var(--red-dk),0 14px 30px rgba(0,0,0,.6)}
+#kw.white{color:#fff;-webkit-text-stroke:0;text-shadow:0 5px 0 rgba(0,0,0,.35),0 12px 28px rgba(0,0,0,.6)}
+#kw .n{display:inline-block;font-style:italic;font-size:1.55em;line-height:.8;margin-right:.08em;vertical-align:-.12em}
+#sub{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-weight:500;font-size:54px;line-height:1.2;color:#fff;
+     text-shadow:0 3px 10px rgba(0,0,0,.85),0 0 3px rgba(0,0,0,.95)}
+#sub.em{font-weight:700;color:var(--orange-lt)}
+#sub.solo{font-size:62px}
+#num{position:absolute;left:50%;top:var(--capY);transform:translate(-50%,-50%);font-weight:800;font-style:italic;font-size:340px;line-height:1;color:#fff;
+     text-shadow:0 8px 0 rgba(0,0,0,.25),0 18px 40px rgba(0,0,0,.6);display:none}
+#num.orange{color:var(--orange);-webkit-text-stroke:3px rgba(255,226,208,.85);text-shadow:0 8px 0 var(--orange-dk),0 18px 40px rgba(0,0,0,.55)}
+
+/* ---------- แผงภาพด้านบน ---------- */
+.ttl{position:absolute;left:0;right:0;text-align:center;font-weight:700;color:var(--ink);white-space:nowrap}
+.img{position:absolute;overflow:hidden;border-radius:16px;box-shadow:0 10px 26px rgba(40,25,10,.28);background:#ddd}
+.img img{width:100%;height:100%;object-fit:cover;display:block}
+.img.contain{background:transparent;box-shadow:none}
+.img.contain img{object-fit:contain}
+.chip{position:absolute;display:flex;align-items:center;gap:10px;background:var(--chip);color:#fff;font-weight:600;font-size:34px;line-height:1;padding:10px 18px 12px;border-radius:6px;white-space:nowrap}
+.chip svg{width:26px;height:26px}
+.chip.or{background:var(--orange)}
+.lbl{position:absolute;font-weight:600;font-size:40px;color:var(--ink);white-space:nowrap;line-height:1.1}
+.ochip{position:absolute;transform:translate(-50%,-50%);background:var(--orange);color:#fff;font-weight:600;font-size:40px;line-height:1.15;padding:12px 22px 14px;border-radius:12px;white-space:nowrap;box-shadow:0 6px 16px rgba(120,50,20,.25)}
+.ochip.big{font-size:58px;padding:16px 34px 20px}
+svg.ar{position:absolute;left:0;top:0;width:1080px;height:100%;overflow:visible}
+.box{position:absolute;border:7px solid #D7261E;border-radius:6px;box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+.tier{position:absolute;color:#fff;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.tier b{font-weight:700;font-size:46px;line-height:1.05;white-space:nowrap}
+.tier span{font-weight:500;font-size:26px;line-height:1.25;white-space:nowrap}
+.side{position:absolute;left:46px;font-weight:700;font-size:52px;color:var(--ink);line-height:1}
+.side .chip{position:static;margin-top:8px;font-size:24px;padding:6px 12px 8px;display:inline-flex}
+.ck{position:absolute;left:150px;display:flex;align-items:center;gap:26px;font-weight:600;font-size:54px;color:var(--ink);white-space:nowrap}
+.ck i{width:64px;height:64px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:none}
+.ck i svg{width:42px;height:42px}
+.big{position:absolute;left:60px;right:60px;text-align:center;font-weight:800;color:var(--ink);line-height:1.15}
+.big em{font-style:normal;color:var(--orange)}
+.vs{position:absolute;font-weight:700;color:var(--orange);font-size:70px}
+
+/* ---------- การ์ดข้อเสนอ ---------- */
+.cd{position:absolute;left:60px;width:960px;top:300px;border-radius:22px;padding:56px 56px 50px;
+    background:radial-gradient(ellipse 60% 50% at 85% 18%,rgba(226,88,43,.35) 0%,rgba(226,88,43,0) 70%),linear-gradient(160deg,#2B1709 0%,#170D06 60%,#0E0703 100%);
+    box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 2px rgba(255,255,255,.08)}
+.cd .cn{position:absolute;width:44px;height:44px;border-color:rgba(255,255,255,.45);border-style:solid}
+.cd .brand{display:flex;align-items:center;gap:16px;font-weight:700;font-size:34px;color:#fff;white-space:nowrap}
+.cd .brand .lg{width:58px;height:58px;border-radius:12px;background:var(--orange);display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:800;font-size:38px}
+.cd .brand .lg img{width:100%;height:100%;object-fit:contain;background:#fff}
+.cd .tl{margin-top:34px;font-weight:800;font-size:92px;line-height:1.05;color:#fff;white-space:nowrap;text-shadow:0 4px 12px rgba(0,0,0,.4)}
+.cd .tl.acc{color:var(--orange)}
+.cd .brand,.cd .tl,.cd .dv,.cd .bn{position:relative;z-index:1}
+.cd .ph{position:absolute;z-index:0;right:20px;top:30px;width:360px;height:420px;overflow:hidden;
+        -webkit-mask-image:linear-gradient(180deg,#000 70%,transparent 100%)}
+.cd .ph img{position:absolute;bottom:0;left:0;width:100%;height:auto}
+.cd .dv{margin-top:44px;display:flex;align-items:center;gap:24px;color:var(--orange);font-weight:700;font-size:58px;white-space:nowrap}
+.cd .dv:before,.cd .dv:after{content:"";flex:1;height:3px;background:linear-gradient(90deg,rgba(226,88,43,0),rgba(226,88,43,.9))}
+.cd .dv:after{background:linear-gradient(90deg,rgba(226,88,43,.9),rgba(226,88,43,0))}
+.cd .bn{margin-top:30px;display:flex;justify-content:space-between;gap:16px}
+.cd .bi{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px}
+.cd .bi .bimg{width:170px;height:170px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
+.cd .bi .bimg img{width:100%;height:100%;object-fit:cover}
+.cd .bi .bimg.txt{font-weight:800;font-size:56px;color:var(--orange)}
+.cd .bi span{font-weight:600;font-size:30px;line-height:1.15;color:#fff;text-align:center;white-space:nowrap}
+.un{position:absolute;left:0;right:0;text-align:center;font-weight:800;line-height:1.1;color:var(--orange);white-space:nowrap;
+    -webkit-text-stroke:2px rgba(255,226,208,.7);text-shadow:0 5px 0 var(--orange-dk),0 12px 26px rgba(0,0,0,.6)}
+.un.x{color:#fff;-webkit-text-stroke:0;font-size:64px}
+.cta{position:absolute;left:50%;transform:translateX(-50%);background:#fff;color:var(--ink);font-weight:700;font-size:44px;line-height:1;padding:20px 40px 24px;border-radius:60px;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.cta b{color:var(--orange)}
+</style></head>
+<body>
+<div id="bgL" class="L">
+  <div id="room" class="L"></div>
+  <div id="offerBg" class="L"></div>
+  <div id="person" class="L"><img id="pimg" alt=""></div>
+</div>
+<div id="panel" class="L"></div>
+<div id="card" class="L"></div>
+<div id="cap" class="L">
+  <div id="num"></div>
+  <div id="tb"><div class="pre"></div><div id="kw"></div><div class="post"></div></div>
+  <div id="sub"></div>
+</div>
+<div id="guides" class="L" style="display:none;pointer-events:none">
+  <div class="guide" style="left:0;right:0;bottom:0;height:380px"></div>
+  <div class="guide" style="right:0;width:150px;top:1000px;height:540px"></div>
+</div>
+<script>
+const W = 1080, H = 1920;
+let LINES = [], CFG = {}, BASE = '', BASECAP = '1330px', PANELS = {}, CARDS = {}, FIT = {}, curPanelKey = null, curCardKey = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const src = p => (!p ? '' : /^(file|https?|data):/.test(p) ? p : new URL(p.replace(/\\/g, '/'), BASE).href);
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const ease = x => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+const PLAY = '<svg viewBox="0 0 24 24"><path d="M6 3l14 9-14 9z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LOOP = '<svg viewBox="0 0 48 48" width="70" height="70"><path d="M38 18a15 15 0 0 0-27-4M10 30a15 15 0 0 0 27 4" fill="none" stroke="#1F1A16" stroke-width="4.5" stroke-linecap="round"/><path d="M38 8v10H28M10 40V30h10" fill="none" stroke="#1F1A16" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// *คำ* ในข้อความแผง = ไฮไลต์สีส้ม
+const hl = s => esc(s).replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+// ย่อฟอนต์ให้ข้อความบรรทัดเดียวไม่เกินความกว้างที่กำหนด
+function fitSize(text, px, maxW, weight, extraClass) {
+  const k = [text, px, maxW, weight, extraClass].join('|');
+  if (FIT[k]) return FIT[k];
+  const m = document.createElement('div');
+  m.style.cssText = `position:absolute;left:-9999px;top:0;white-space:nowrap;font-family:var(--font);font-weight:${weight};font-size:${px}px`;
+  if (extraClass) m.className = extraClass;
+  m.innerHTML = text;
+  document.body.appendChild(m);
+  const w = m.scrollWidth;
+  m.remove();
+  return (FIT[k] = w > maxW ? Math.floor(px * maxW / w) : px);
+}
+
+// ---------- ฉากหลัง ----------
+function setupBg() {
+  const bg = CFG.bg || { type: 'none' };
+  const room = $('#room');
+  if (bg.type !== 'aroll') {  // แสงโบเก้ในห้องสตูดิโอ ใช้ตอนไม่มีฟุตเทจ
+    const dots = [[150, 380, 160, '#ffcf8a', .55], [880, 300, 120, '#ffb36b', .45], [960, 820, 200, '#ff9a55', .3], [90, 1000, 140, '#ffd9a0', .3], [700, 140, 90, '#fff0c8', .5]];
+    room.innerHTML = dots.map(([x, y, r, c, o]) => `<i style="left:${x - r / 2}px;top:${y - r / 2}px;width:${r}px;height:${r}px;background:${c};opacity:${o}"></i>`).join('');
+  }
+  const img = $('#pimg');
+  if (bg.type === 'aroll') { img.className = 'ar'; }
+  else if (bg.type === 'cutout') { img.src = src(bg.src); }
+  else { img.style.display = 'none'; }
+}
+
+function arFrame(t) {
+  const bg = CFG.bg, fps = bg.fps || 30, n = bg.count || 1;
+  const i = clamp(Math.round((t - (CFG.head || 0)) * fps), 0, n - 1) + 1;
+  return `${bg.dir}/f_${String(i).padStart(5, '0')}.jpg`;
+}
+function arCut(t) {  // เฟรมตัดพื้น (PNG) ช่วงที่สั่ง sr_aroll.py --cut ไว้ ไม่มีคืน null
+  const bg = CFG.bg, c = bg.cut;
+  if (!c) return null;
+  const fps = bg.fps || 30, i = Math.round((t - (CFG.head || 0)) * fps) + 1;
+  return (i >= c.from && i <= c.to) ? `${c.dir}/f_${String(i).padStart(5, '0')}.png` : null;
+}
+
+async function loadImg(img, url) {
+  if (img.dataset.u === url) return;
+  img.dataset.u = url;
+  img.src = url;
+  try { await img.decode(); } catch (e) { }
+}
+
+// วางตัวคนตามโหมดเฟรม
+async function placePerson(frame, lt, dur, t) {
+  const bg = CFG.bg || { type: 'none' }, img = $('#pimg'), P = $('#person');
+  P.style.webkitMaskImage = 'none';
+  if (bg.type === 'none') return;
+  if (bg.type === 'aroll') {
+    let url = arFrame(t), cut = null;
+    if (frame === 'offer') cut = arCut(t);
+    await loadImg(img, src(cut || url));
+    let s = 1.08, ty = 0;
+    if (frame === 'wide') s = 1.0;
+    if (frame === 'split') ty = 110;
+    if (frame === 'offer') {
+      s = 0.8; ty = 1920 * 0.2 + 80;
+      if (!cut) P.style.webkitMaskImage = 'linear-gradient(180deg,transparent 28%,#000 52%)';
+    }
+    P.style.transformOrigin = '50% 45%';
+    P.style.transform = `translateY(${ty}px) scale(${s})`;
+    return;
+  }
+  // ภาพตัดพื้น: กว้างตามโหมด ยึดขอบล่าง หายใจช้า ๆ ทั้งฉาก
+  const nw = img.naturalWidth || 900, nh = img.naturalHeight || 900;
+  const wmap = { full: 1240, close: 1240, split: 1180, wide: 1000, offer: 820, card: 1240 };
+  const lmap = { wide: 220 };   // มุมกว้าง: ยกคนขึ้นให้หน้าอยู่เหนือคำบรรยาย แล้วจางขอบล่างของรูป
+  const w = (CFG.bg.width && CFG.bg.width[frame]) || wmap[frame] || 1240;
+  const h = nh * w / nw;
+  const lift = (CFG.bg.lift && CFG.bg.lift[frame] != null) ? CFG.bg.lift[frame] : (lmap[frame] || 0);
+  img.style.width = w + 'px'; img.style.height = h + 'px';
+  img.style.left = (W - w) / 2 + 'px'; img.style.top = (H - h - lift) + 'px';
+  const br = 1 + 0.03 * clamp(lt / Math.max(dur, 0.1), 0, 1);
+  const sway = Math.sin(t * 0.7) * 6;
+  P.style.transformOrigin = '50% 100%';
+  P.style.transform = `translateX(${sway}px) scale(${br})`;
+  if (frame === 'offer') P.style.webkitMaskImage = 'linear-gradient(180deg,#000 85%,transparent 100%)';
+  else if (lift > 0) { const b = H - lift; P.style.webkitMaskImage = `linear-gradient(180deg,#000 ${b - 200}px,transparent ${b - 10}px)`; }
+}
+
+// ---------- แผง ----------
+function arrow(x1, y1, x2, y2) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1F1A16" stroke-width="5" stroke-linecap="round" marker-end="url(#ah)"/>`;
+}
+const DEFS = '<defs><marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1F1A16"/></marker></defs>';
+
+function buildPanel(p, hgt) {
+  const T = p.type, ttl = p.title ? `<div class="ttl" style="top:${p.titleY || 70}px;font-size:${fitSize(esc(p.title), 62, 980, 700)}px">${esc(p.title)}</div>` : '';
+  const top0 = p.title ? 170 : 70;
+  const room = hgt - top0 - 50;
+  let h = '';
+  if (T === 'proof') {
+    const it = p.items || [], n = it.length, cw = n >= 3 ? 290 : 340, gap = 40, ch = Math.min(room - 30, cw * 16 / 9);
+    const x0 = (W - (n * cw + (n - 1) * gap)) / 2, y0 = top0 + Math.max(0, (room - 30 - ch) / 2);
+    h = ttl + it.map((x, i) => `<div data-d="${i * 0.08}">
+        <div class="img" style="left:${x0 + i * (cw + gap)}px;top:${y0}px;width:${cw}px;height:${ch}px"><img src="${src(x.img)}" style="object-position:${x.pos || '50% 50%'}"></div>
+        ${x.chip ? `<div class="chip" style="left:${x0 + i * (cw + gap) - 12}px;top:${y0 + ch - 30}px">${x.play === false ? '' : PLAY}${esc(x.chip)}</div>` : ''}</div>`).join('');
+  } else if (T === 'diagram') {
+    const iw = p.w || 300, ih = p.h || 450, ix = (W - iw) / 2, iy = Math.max(top0 + 40, (hgt - ih) / 2 + 20);
+    const L = p.labels || [], slots = [['t', 0], ['r', 0], ['l', 0], ['r', 1], ['l', 1], ['r', 2], ['l', 2]];
+    let svg = '', labs = '';
+    L.forEach((txt, i) => {
+      const [side, k] = slots[i] || ['r', 2], fs = fitSize(esc(txt), 40, 300, 600);
+      if (side === 't') {
+        labs += `<div class="lbl" data-d="${0.1 + i * 0.06}" style="left:0;right:0;text-align:center;top:${iy - 110}px;font-size:${fs}px">${esc(txt)}</div>`;
+        svg += arrow(540, iy - 52, 540, iy + 14);
+      } else {
+        const y = iy + ih * (0.16 + 0.34 * k), tx = side === 'r' ? ix + iw + 70 : ix - 70;
+        labs += `<div class="lbl" data-d="${0.1 + i * 0.06}" style="${side === 'r' ? `left:${tx + 10}px` : `right:${W - tx + 10}px`};top:${y - 26}px;font-size:${fs}px">${esc(txt)}</div>`;
+        svg += side === 'r' ? arrow(tx, y, ix + iw - 16, y + 6) : arrow(tx, y, ix + 16, y + 6);
+      }
+    });
+    h = ttl + `<div class="img" style="left:${ix}px;top:${iy}px;width:${iw}px;height:${ih}px"><img src="${src(p.img)}"></div>
+         <svg class="ar" data-d="0.08">${DEFS}${svg}</svg>${labs}`;
+  } else if (T === 'swatch') {
+    const cols = p.colors || ['#E2582B', '#FFFFFF', '#271D14'], has = !!p.img, cx = has ? 300 : 540, r = 170;
+    const x0 = cx - (cols.length * r - (cols.length - 1) * 34) / 2;
+    h = `<div class="ttl" style="top:150px;${has ? 'left:40px;right:auto;width:520px' : ''};font-size:${fitSize(esc(p.title || ''), 72, 500, 700)}px">${esc(p.title || '')}</div>` +
+      cols.map((c, i) => `<div data-d="${0.06 * i}" style="position:absolute;left:${x0 + i * (r - 34)}px;top:300px;width:${r}px;height:${r}px;border-radius:50%;background:${c};border:5px solid #1F1A16"></div>`).join('') +
+      (has ? `${p.imgTitle ? `<div class="ttl" style="left:600px;right:40px;top:110px;font-size:${fitSize(esc(p.imgTitle), 38, 440, 600)}px;font-weight:600">${esc(p.imgTitle)}</div>` : ''}
+              <div class="img" data-d="0.12" style="left:620px;top:170px;width:400px;height:${Math.min(560, hgt - 220)}px"><img src="${src(p.img)}"></div>` : '');
+  } else if (T === 'shot') {
+    const mw = p.w || 980, mh = p.h || room, iw = mw, ih = mh, ix = (W - iw) / 2, iy = top0;
+    const b = p.box ? `<div class="box" data-d="0.35" style="left:${ix + p.box[0] * iw}px;top:${iy + p.box[1] * ih}px;width:${p.box[2] * iw}px;height:${p.box[3] * ih}px"></div>` : '';
+    const c = p.chip ? `<div class="chip" style="left:${ix - 20}px;top:${iy + ih - 70}px">${p.play ? PLAY : ''}${esc(p.chip)}</div>` : '';
+    h = ttl + `<div class="img ${p.fit === 'contain' ? 'contain' : ''}" style="left:${ix}px;top:${iy}px;width:${iw}px;height:${ih}px"><img src="${src(p.img)}"></div>${b}${c}`;
+  } else if (T === 'mindmap') {
+    const cy = p.title ? 470 : 410, dx = 270, dy = 190, it = p.items || [];
+    const pos = [[540 - dx, cy - dy], [540 + dx, cy - dy], [540 - dx, cy + dy], [540 + dx, cy + dy]];
+    let svg = '';
+    pos.forEach(([x, y], i) => { if (it[i]) svg += arrow(540 + (x - 540) * 0.28, cy + (y - cy) * 0.36, 540 + (x - 540) * 0.62, cy + (y - cy) * 0.62); });
+    h = ttl + `<svg class="ar" data-d="0.08">${DEFS}${svg}</svg><div class="ochip big" style="left:540px;top:${cy}px">${esc(p.center || '')}</div>` +
+      it.slice(0, 4).map((s, i) => `<div class="ochip" data-d="${0.12 + 0.08 * i}" style="left:${pos[i][0]}px;top:${pos[i][1]}px;font-size:${fitSize(esc(s), 40, 360, 600)}px">${esc(s)}</div>`).join('');
+  } else if (T === 'bars') {
+    const R = p.rows || [], step = Math.min(108, (room + 40) / Math.max(R.length, 1)), y0 = top0 - 10;
+    h = ttl + R.map((r, i) => {
+      const y = y0 + i * step, bw = r.w || 520;
+      const body = r.icon === 'loop' ? `<div style="position:absolute;left:${560 + bw / 2 - 260}px;top:${y - 6}px">${LOOP}</div>`
+        : `<div class="bar" data-grow="${0.1 + 0.09 * i}" style="position:absolute;left:400px;top:${y + 16}px;height:34px;width:${bw}px;background:${r.color || '#E2582B'};transform-origin:0 50%"></div>`;
+      return `<div data-d="${0.09 * i}"><div class="lbl" style="right:${W - 380}px;top:${y}px;font-size:58px;font-weight:700">${esc(r.label)}</div>${body}</div>`;
+    }).join('');
+  } else if (T === 'image') {
+    const iw = p.w || 980, ih = p.h || room;
+    h = ttl + `<div class="img ${p.fit === 'contain' ? 'contain' : ''}" style="left:${(W - iw) / 2}px;top:${top0}px;width:${iw}px;height:${ih}px"><img src="${src(p.img)}"></div>`;
+  } else if (T === 'funnel') {
+    const tr = p.tiers || [], ws = [720, 580, 440], th = 158, gap = 18, y0 = p.title ? 190 : 110, cx = 610;
+    const colors = ['var(--t1)', 'var(--t2)', 'var(--t3)'];
+    h = ttl + tr.slice(0, 3).map((x, i) => {
+      const w = ws[i], w2 = ws[i + 1] || ws[i] - 140, y = y0 + i * (th + gap);
+      const inset = (w - w2) / 2 / w * 100;
+      return `<div data-d="${0.12 * i}">
+        <div class="side" style="top:${y + 26}px">${esc(x.side || '')}${x.chip ? `<br><span class="chip">${esc(x.chip)}</span>` : ''}</div>
+        <div class="tier" style="left:${cx - w / 2}px;top:${y}px;width:${w}px;height:${th}px;background:${x.color || colors[i]};clip-path:polygon(0 0,100% 0,${100 - inset}% 100%,${inset}% 100%)">
+          <b style="font-size:${fitSize(esc(x.head || ''), 46, w2 - 30, 700)}px">${esc(x.head || '')}</b>${x.sub ? `<span style="font-size:${fitSize(esc(x.sub), 26, w2 - 20, 500)}px">${esc(x.sub)}</span>` : ''}</div></div>`;
+    }).join('');
+  } else if (T === 'grid') {
+    const C = p.cols || [], n = C.length, cw = n >= 3 ? 310 : 440, gap = 30, x0 = (W - (n * cw + (n - 1) * gap)) / 2;
+    const ih = room - 70;
+    h = ttl + C.map((c, i) => `<div data-d="${0.08 * i}">
+        <div class="lbl" style="left:${x0 + i * (cw + gap)}px;width:${cw}px;text-align:center;top:${top0 - 4}px;font-size:${fitSize(esc(c.head || ''), 44, cw, 600)}px;font-weight:700">${esc(c.head || '')}</div>
+        <div class="img" style="left:${x0 + i * (cw + gap)}px;top:${top0 + 66}px;width:${cw}px;height:${ih}px"><img src="${src(c.img)}" style="object-position:${c.pos || '50% 50%'}"></div></div>`).join('');
+  } else if (T === 'checklist') {
+    const I = p.items || [], step = Math.min(118, (room + 30) / Math.max(I.length, 1));
+    h = ttl + I.map((s, i) => `<div class="ck" data-d="${0.12 + 0.12 * i}" style="top:${top0 + i * step}px;font-size:${fitSize(esc(s), 54, 760, 600)}px"><i>${CHECK}</i>${esc(s)}</div>`).join('');
+  } else if (T === 'compare') {
+    const a = p.left || {}, b = p.right || {}, iw = 450, ih = room - 40, y = top0 + 30;
+    h = ttl + `<div data-d="0"><div class="img" style="left:50px;top:${y}px;width:${iw}px;height:${ih}px;filter:grayscale(.55) brightness(.92)"><img src="${src(a.img)}" style="object-position:${a.pos || '50% 50%'}"></div>
+        <div class="chip" style="left:66px;top:${y - 26}px">${esc(a.label || 'ก่อน')}</div></div>
+      <div data-d="0.16"><div class="img" style="left:580px;top:${y}px;width:${iw}px;height:${ih}px"><img src="${src(b.img)}" style="object-position:${b.pos || '50% 50%'}"></div>
+        <div class="chip or" style="left:596px;top:${y - 26}px">${esc(b.label || 'หลัง')}</div></div>
+      <div class="vs" data-d="0.1" style="left:${540 - 26}px;top:${y + ih / 2 - 50}px">›</div>`;
+  } else if (T === 'text') {
+    h = ttl + `<div class="big" style="top:${top0 + 40}px;font-size:${p.size || 96}px">${(p.lines || [p.text || '']).map(hl).join('<br>')}</div>`;
+  }
+  return h;
+}
+
+function buildCard(c) {
+  const lg = c.logo ? `<img src="${src(c.logo)}">` : esc((c.brand || 'B')[0]);
+  const bon = (c.bonuses || []).slice(0, 4).map((b, i) => `<div class="bi" data-d="${0.35 + 0.08 * i}">
+      <div class="bimg ${b.img ? '' : 'txt'}">${b.img ? `<img src="${src(b.img)}">` : esc(b.mark || '+')}</div>
+      <span>${(b.label || '').split('/').map(esc).join('<br>')}</span></div>`).join('');
+  const tl = (c.title || []).map((s, i) => `<div class="tl ${i === (c.accent == null ? 1 : c.accent) ? 'acc' : ''}" style="font-size:${fitSize(esc(s), 92, c.photo ? 540 : 840, 800)}px">${esc(s)}</div>`).join('');
+  const corners = [['left:-2px;top:-2px', 'border-width:3px 0 0 3px'], ['right:-2px;top:-2px', 'border-width:3px 3px 0 0'], ['left:-2px;bottom:-2px', 'border-width:0 0 3px 3px'], ['right:-2px;bottom:-2px', 'border-width:0 3px 3px 0']]
+    .map(([p, b]) => `<i class="cn" style="${p};${b}"></i>`).join('');
+  const un = (c.under || []).map((s, i) => `<div class="un ${s === 'x' ? 'x' : ''}" data-d="${0.5 + 0.06 * i}" style="top:${(c.underY || 1290) + i * 92}px;font-size:${s === 'x' ? 64 : fitSize(esc(s), 76, 960, 800)}px">${esc(s)}</div>`).join('');
+  const cta = c.cta ? `<div class="cta" data-d="0.7" style="top:${(c.underY || 1290) + (c.under || []).length * 92 + 40}px">${hl(c.cta).replace(/<em>/g, '<b>').replace(/<\/em>/g, '</b>')}</div>` : '';
+  return `<div class="cd" data-d="0">${corners}
+      ${c.photo ? `<div class="ph"><img src="${src(c.photo)}"></div>` : ''}
+      <div class="brand"><span class="lg">${lg}</span>${esc(c.brand || '')}</div>${tl}
+      ${bon ? `<div class="dv">${esc(c.bonusTitle || 'แถม')}</div><div class="bn">${bon}</div>` : ''}</div>${un}${cta}`;
+}
+
+// แอนิเมชันเข้าแบบสั้นของลูก ๆ ที่มี data-d (เวลาหน่วง) ภายในแผงหรือการ์ด
+function animIn(root, lt, still) {
+  root.querySelectorAll('[data-d]').forEach(el => {
+    const k = still ? 1 : ease((lt - parseFloat(el.dataset.d)) / 0.18);
+    el.style.opacity = k;
+    // ใช้ translate/scale แยกจาก transform เพราะชิ้นอย่าง .ochip จัดตำแหน่งด้วย transform อยู่แล้ว
+    if (el.classList.contains('cd')) el.style.scale = 0.94 + 0.06 * k;
+    else el.style.translate = `0 ${(1 - k) * 18}px`;
+  });
+  root.querySelectorAll('[data-grow]').forEach(el => {
+    const k = still ? 1 : ease((lt - parseFloat(el.dataset.grow)) / 0.3);
+    el.style.transform = `scaleX(${k})`;
+  });
+}
+
+// ---------- คำบรรยาย ----------
+function captions(L, lt, t) {
+  const s = L.scene, subs = L.subs || [], frame = s.frame;
+  const tb = $('#tb'), kw = $('#kw'), sub = $('#sub'), num = $('#num');
+  tb.style.display = 'none'; sub.style.display = 'none'; num.style.display = 'none';
+  if (frame === 'card' || s.caption === false) return;
+  // ช่วงเลขข้อ
+  const nd = s.num != null && !s.numKeep ? Math.min(s.numDur || 0.75, subs[1] ? subs[1].t - L.start : 0.75) : 0;
+  if (s.num != null && !s.numKeep && lt < nd) {
+    num.style.display = 'block'; num.textContent = s.num; num.className = s.numColor === 'orange' ? 'orange' : '';
+    const k = ease(lt / 0.1); num.style.transform = `translate(-50%,-50%) scale(${1.3 - 0.3 * k})`; num.style.opacity = k;
+    return;
+  }
+  // คีย์เวิร์ดปัจจุบัน: วลีที่ขึ้นต้นด้วย # สลับคีย์เวิร์ด
+  let cur = s.kw || '', kt = L.start + nd, last = null;
+  for (const x of subs) {
+    if (x.t > t) break;
+    if (x.text.startsWith('#')) { cur = x.text.slice(1).trim(); kt = x.t; last = null; }
+    else last = x;
+  }
+  const showKw = !!cur;
+  if (showKw) {
+    tb.style.display = 'flex';
+    const numHtml = s.num != null && s.numKeep ? `<span class="n">${esc(s.num)}</span>` : '';
+    const html = numHtml + esc(cur);
+    const fs = fitSize(html, s.kwSize || 150, 960, 800);
+    if (kw.dataset.h !== html) { kw.innerHTML = html; kw.dataset.h = html; }
+    kw.style.fontSize = fs + 'px';
+    kw.className = s.kwColor || '';
+    const k = ease((t - kt) / 0.12); kw.style.transform = `scale(${1.15 - 0.15 * k})`; kw.style.opacity = clamp((t - kt) / 0.06, 0, 1);
+    tb.querySelector('.pre').textContent = s.pre || '';
+    tb.querySelector('.pre').style.display = s.pre ? 'block' : 'none';
+    const post = tb.querySelector('.post');
+    post.innerHTML = s.post ? hl(s.post).replace(/<em>/g, '<b>').replace(/<\/em>/g, '</b>') : '';
+    post.style.display = s.post ? 'block' : 'none';
+  }
+  // ซับวิ่ง: วลีล่าสุดหลังคีย์เวิร์ดสลับ วลีที่ขึ้นต้นด้วย ~ พูดแต่ไม่ขึ้นจอ
+  if (s.post || s.subs === false) return;
+  if (last && last.t >= kt - 0.001 && !last.text.startsWith('~')) {
+    sub.style.display = 'block';
+    sub.className = (last.em ? 'em ' : '') + (showKw ? '' : 'solo');
+    sub.textContent = last.text;
+    sub.style.fontSize = fitSize(esc(last.text), showKw ? 54 : 62, 940, last.em ? 700 : 500) + 'px';
+    const kh = showKw ? (parseFloat(kw.style.fontSize) * 0.62 + (s.pre ? 30 : 0)) : 0;
+    sub.style.top = `calc(var(--capY) + ${showKw ? kh + 6 : -40}px)`;
+  }
+}
+
+// ---------- API ----------
+window.init = (lines, cfg) => {
+  LINES = lines; CFG = cfg || {}; BASE = CFG.base || location.href;
+  const th = CFG.theme || {};
+  for (const k in th) document.documentElement.style.setProperty('--' + k, th[k]);
+  if (CFG.bg && CFG.bg.type === 'cutout') document.documentElement.style.setProperty('--capY', (th.capY || '1500px'));
+  BASECAP = getComputedStyle(document.documentElement).getPropertyValue('--capY').trim();
+  if (CFG.guides) $('#guides').style.display = 'block';
+  setupBg();
+};
+
+window.renderAt = async (t) => {
+  let L = LINES[0];
+  for (const x of LINES) if (t >= x.start) L = x;
+  const s = L.scene, lt = t - L.start, dur = L.end - L.start;
+  const frame = s.frame || (s.panel ? 'split' : 'close');
+  L.scene.frame = frame;
+  const isOffer = frame === 'offer', isCard = frame === 'card';
+  // ฉากข้อเสนอ คนยืนล่าง คำบรรยายย้ายขึ้นไปใต้แผง ไม่ให้ทับหน้า
+  document.documentElement.style.setProperty('--capY', isOffer ? ((s.panelH || 1150) + 90) + 'px' : BASECAP);
+  $('#offerBg').style.display = isOffer ? 'block' : 'none';
+  $('#room').style.display = isOffer ? 'none' : 'block';
+  await placePerson(isCard ? (s.cardBase || 'close') : frame, lt, dur, t);
+  $('#bgL').style.filter = isCard ? 'blur(26px) brightness(.42) saturate(1.15)' : 'none';
+
+  // แผงด้านบน (split = พื้นครีมสูง 780 · offer = พื้นใส สูง 1150)
+  const pn = $('#panel');
+  if (s.panel && !isCard) {
+    const hgt = isOffer ? (s.panelH || 1150) : (s.panelH || 780);
+    const key = JSON.stringify([s.panel, hgt]);
+    if (!PANELS[key]) { const d = document.createElement('div'); d.innerHTML = buildPanel(s.panel, hgt); PANELS[key] = d; }
+    if (curPanelKey !== key) { pn.innerHTML = ''; pn.appendChild(PANELS[key]); curPanelKey = key; }
+    pn.style.display = 'block'; pn.style.height = hgt + 'px';
+    pn.className = 'L' + (isOffer ? ' clear' : '');
+    // แผงเดิมจากฉากก่อนหน้า ไม่ต้องเล่นเข้าใหม่
+    const prev = LINES[LINES.indexOf(L) - 1];
+    const same = prev && prev.scene.panel && JSON.stringify([prev.scene.panel, hgt]) === key;
+    animIn(PANELS[key], lt, same || s.panelStill);
+  } else { pn.style.display = 'none'; curPanelKey = null; }
+
+  const cd = $('#card');
+  if (isCard && s.card) {
+    const key = JSON.stringify(s.card);
+    if (!CARDS[key]) CARDS[key] = buildCard(s.card);
+    if (curCardKey !== key) { cd.innerHTML = CARDS[key]; curCardKey = key; await Promise.all([...cd.querySelectorAll('img')].map(i => i.decode().catch(() => { }))); }
+    cd.style.display = 'block';
+    animIn(cd, lt, false);
+  } else { cd.style.display = 'none'; curCardKey = null; }
+
+  captions(L, lt, t);
+  if (pn.style.display === 'block') await Promise.all([...pn.querySelectorAll('img')].filter(i => !i.complete).map(i => i.decode().catch(() => { })));
+  return true;
+};
+</script>
+</body></html>

@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<!-- 19/10/2026 เครื่องยนต์หน้าเรนเดอร์คลิปแนะนำ/เจาะลึกแนว cinematic 16:9: วงแหวนพลังงานและคลื่นอนุภาคสีฟ้า ช่วงเปิดตัดตามเสียงตูม
+     เรนเดอร์ทีละเฟรมด้วย renderAt(t) · SHOTS / CARDS ในไฟล์นี้เป็นตัวอย่าง make_html.py จะแทนด้วยของงานจริง -->
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  html, body { margin:0; width:1920px; height:1080px; overflow:hidden; background:#000; }
+  #stage { position:absolute; inset:0; overflow:hidden; background:#000; }
+  #cam { position:absolute; inset:0; transform-origin:50% 50%; }
+  #plate { position:absolute; inset:0; overflow:hidden; perspective:2000px; }
+  #plate .ph { position:absolute; left:0; top:96px; width:1920px; height:888px; object-fit:cover; transform-origin:50% 50%; }
+  #plate .hall { position:absolute; left:-4%; top:-4%; width:108%; height:108%; object-fit:cover; transform-origin:50% 50%; }
+  #plate .rt { position:absolute; right:0; top:96px; width:1300px; height:888px; overflow:hidden;
+               -webkit-mask-image:linear-gradient(to right, transparent 0, #000 460px); mask-image:linear-gradient(to right, transparent 0, #000 460px); }
+  #plate .rt img { width:100%; height:100%; object-fit:cover; transform-origin:60% 50%; }
+  #plate .scr { position:absolute; border-radius:12px; overflow:hidden; transform-origin:50% 50%;
+                box-shadow:0 0 140px rgba(70,140,255,.32), 0 50px 100px rgba(0,0,0,.9), 0 0 0 1px rgba(160,200,255,.28); }
+  #plate .scr img { display:block; width:100%; height:100%; object-fit:cover; object-position:50% 0; filter:brightness(.86) contrast(1.12) saturate(.92); }
+  #plate .scr::after { content:''; position:absolute; inset:0; background:linear-gradient(115deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 32%, rgba(0,0,0,0) 60%, rgba(0,10,30,.35) 100%); }
+  #plate .doc { position:absolute; box-shadow:0 40px 90px rgba(0,0,0,.85), 0 0 60px rgba(226,176,74,.12); transform-origin:50% 50%; }
+  #plate .doc img { display:block; width:100%; height:100%; object-fit:cover; filter:brightness(.92) contrast(1.05); }
+  #plate .logo { position:absolute; left:50%; top:50%; transform-origin:50% 50%; }
+  #plate .four { position:absolute; left:110px; right:110px; top:170px; bottom:150px; display:flex; gap:34px; }
+  #plate .col { flex:1; display:flex; flex-direction:column; }
+  #plate .cimg { height:360px; overflow:hidden; border-top:4px solid var(--ac); }
+  #plate .cimg img { width:100%; height:100%; object-fit:cover; filter:contrast(1.12) brightness(.8) saturate(.88); }
+  #plate .cn { font-family:Archivo; font-stretch:125%; font-weight:800; font-size:23px; color:#fff; margin-top:24px; white-space:nowrap; }
+  #plate .ct { font-family:Kanit; font-weight:300; font-size:36px; color:#e2e8ee; margin-top:10px; }
+  #plate .cm { font-family:Kanit; font-weight:300; font-size:28px; color:var(--ac); margin-top:6px; }
+  canvas { position:absolute; left:0; top:0; width:1920px; height:1080px; }
+  #glow { filter:blur(7px) brightness(1.7); mix-blend-mode:screen; }
+  #leak { mix-blend-mode:screen; }
+  #txt { position:absolute; inset:0; }
+  #scrim { position:absolute; inset:0; opacity:0; }
+  .g { display:inline-block; white-space:pre; }
+  .w { display:inline-block; white-space:nowrap; }
+  .ctr { position:absolute; left:0; right:0; top:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .c1 { font-family:Kanit; font-weight:300; font-size:86px; line-height:1.25; color:#f2f4f7; text-shadow:0 2px 34px rgba(0,0,0,.85); }
+  .c2 { font-family:Kanit; font-weight:300; font-size:46px; line-height:1.4; color:#d8dee6; margin-top:16px; text-shadow:0 2px 22px rgba(0,0,0,.9); }
+  .blue .c1, .blue .c2 { text-shadow:0 0 24px rgba(80,160,255,.75), 0 2px 30px rgba(0,0,0,.8); }
+  .wm { font-family:Archivo; font-stretch:125%; font-weight:500; font-size:38px; letter-spacing:.5em; color:#e4edf9; padding-left:.5em; text-shadow:0 0 16px rgba(90,160,255,.6); }
+  .wm2 { font-family:Archivo; font-stretch:125%; font-weight:300; font-size:24px; letter-spacing:.6em; color:#bcd3f0; padding-left:.6em; margin-top:22px; }
+  .lg0 { height:96px; filter:brightness(0) invert(1) drop-shadow(0 0 14px rgba(110,180,255,.8)); }
+  .tt { font-family:Archivo; font-stretch:125%; font-weight:900; color:#fff; white-space:nowrap; line-height:1; text-shadow:0 0 30px rgba(80,160,255,.6); }
+  .tts { font-family:Kanit; font-weight:300; font-size:48px; color:#e1e8f0; margin-top:26px; text-shadow:0 0 20px rgba(80,160,255,.6), 0 2px 20px rgba(0,0,0,.8); }
+  .tline { width:0; height:2px; background:linear-gradient(90deg, rgba(226,176,74,0), #e2b04a, rgba(226,176,74,0)); margin:30px auto 0; }
+  .blk { position:absolute; left:120px; top:0; bottom:0; width:860px; display:flex; flex-direction:column; justify-content:center; padding-top:30px; }
+  .eb { font-family:Kanit; font-weight:400; font-size:33px; color:var(--ac); display:flex; align-items:center; gap:18px; }
+  .eb .n { font-family:Archivo; font-stretch:125%; font-weight:700; font-size:25px; letter-spacing:.18em; color:#9aa4b0; }
+  .eb .lat { font-family:Archivo; font-stretch:125%; font-weight:700; font-size:24px; letter-spacing:.28em; }
+  .nm { font-family:Archivo; font-stretch:125%; font-weight:800; font-size:78px; line-height:1.05; color:#fff; margin-top:18px; white-space:nowrap; }
+  .nm.th { font-family:Kanit; font-stretch:normal; font-weight:400; font-size:82px; line-height:1.2; white-space:normal; }
+  .sub { font-family:Kanit; font-weight:300; font-size:48px; color:#e0e6ec; margin-top:12px; line-height:1.3; }
+  .rule { height:4px; width:0; background:var(--ac); margin:26px 0 22px; }
+  .ft { font-family:Kanit; font-weight:300; font-size:41px; color:#d8dee5; line-height:1.3; margin:8px 0; display:flex; align-items:baseline; gap:18px; }
+  .ft::before { content:''; flex:0 0 auto; width:11px; height:11px; background:var(--ac); transform:translateY(-8px) rotate(45deg); }
+  .meta { font-family:Kanit; font-weight:300; font-size:33px; color:#aeb8c3; margin-top:8px; }
+  .sect .e { font-family:Archivo; font-stretch:125%; font-weight:700; font-size:23px; letter-spacing:.38em; color:#e2b04a; padding-left:.42em; }
+  .sect .h { font-family:Kanit; font-weight:300; font-size:88px; line-height:1.15; color:#fff; margin-top:12px; text-shadow:0 0 26px rgba(80,160,255,.8), 0 0 80px rgba(40,110,255,.5); }
+  .end .lg { height:84px; filter:brightness(0) invert(1); opacity:.95; }
+  .end .l1 { font-family:Kanit; font-weight:300; font-size:58px; color:#fff; margin-top:34px; }
+  .end .cos { font-family:Archivo; font-stretch:125%; font-weight:500; font-size:24px; letter-spacing:.2em; color:#bfc9d4; margin-top:30px; white-space:nowrap; }
+  .end .url { font-family:Archivo; font-stretch:125%; font-weight:700; font-size:40px; color:#e2b04a; margin-top:26px; white-space:nowrap; }
+  .end .ct { font-family:Kanit; font-weight:300; font-size:38px; color:#e0e6ec; margin-top:16px; }
+  .end .cred { font-family:Archivo; font-stretch:125%; font-weight:300; font-size:19px; letter-spacing:.06em; color:#8a94a1; margin-top:10px; line-height:1.6; }
+  .end .bill { font-family:Archivo; font-stretch:125%; font-weight:300; font-size:19px; letter-spacing:.1em; color:#8a94a1; text-transform:uppercase; margin-top:44px; line-height:1.7; }
+  #vig { position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 48%, rgba(0,0,0,.7) 100%); }
+  #grain { opacity:.08; mix-blend-mode:overlay; }
+  #flash { position:absolute; inset:0; background:#e8f2ff; opacity:0; }
+  .bar { position:absolute; left:0; right:0; height:96px; background:#000; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <div id="plate"></div>
+    <canvas id="fx" width="1920" height="1080"></canvas>
+    <canvas id="glow" width="480" height="270"></canvas>
+    <canvas id="leak" width="480" height="270"></canvas>
+  </div>
+  <div id="vig"></div>
+  <div id="scrim"></div>
+  <div id="txt"></div>
+  <canvas id="grain" width="640" height="360"></canvas>
+  <div id="flash"></div>
+  <div class="bar" style="top:0"></div><div class="bar" style="bottom:0"></div>
+</div>
+<script>
+const W = 1920, H = 1080, TOTAL = 120.0;
+const TAU = Math.PI * 2;
+function rng(s) { return () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const ease = x => x * x * (3 - 2 * x);
+const frac = x => x - Math.floor(x);
+const $ = id => document.getElementById(id);
+
+// ---------- ตั้งค่าแบรนด์ (แก้ที่นี่ หรือให้ make_html.py ฉีดค่าแทน) ----------
+const BRAND = { name: 'BRAND NAME', tagline: 'สโลแกนหนึ่งบรรทัด', cta: 'คุยกับเราเรื่องระบบของคุณ',
+  companies: 'COMPANY A &nbsp;·&nbsp; COMPANY B', urls: 'example.com', contact: 'you@example.com &nbsp;·&nbsp; 02-XXX-XXXX',
+  bill: 'มาตรฐานหรือใบรับรอง (ถ้ามี)', credit: 'Music: <ชื่อเพลง> · <ศิลปิน> · <ลิงก์ตามเงื่อนไขเจ้าของเพลง>' };
+
+// เกรดภาพโทนเหล็กเย็น
+const GRADE = {
+  steel: 'contrast(1.18) brightness(.82) saturate(.85) hue-rotate(-6deg)',
+  dark:  'contrast(1.25) brightness(.6) saturate(.85)',
+  warm:  'contrast(1.12) brightness(.86) saturate(.95) sepia(.12)',
+  lift:  'contrast(1.1) brightness(1.25) saturate(.9)',
+  dim:   'contrast(1.12) brightness(.66) saturate(.85) hue-rotate(-6deg)',
+};
+const AC = { grp: '#e2b04a', inn: '#e8946a', man: '#b39dff', dig: '#6ea8ff', gg: '#5fd38d' };
+const C1 = 'หมวดที่ 1', C2 = 'หมวดที่ 2', C3 = 'หมวดที่ 3', C4 = 'หมวดที่ 4';
+
+// ---------- ช็อต (ตัวอย่างเล็ก ๆ ให้เห็นรูปแบบ · ของจริงถูกแทนด้วย SHOTS / CARDS จาก make_html.py) ----------
+// ช่วงเปิดตัดตามเสียงตูมของเพลง · ห้องเพลงยาว 2.0 วิ
+// k: black · logo0 · ring · wave · title (ภาพพื้นหลัง + วงแหวน) · full · right · screen · docs · logo · four · creds
+const SHOTS = [
+  { t: 0.0, k: 'black', x: { kind: 'logo0', d: 0.05, e: 0.12 } },
+  { t: 2.0, k: 'ring', v: 'edgeL', x: { kind: 'wm', l1: BRAND.name, l2: 'PRESENTS', d: 0.4, e: 0.3 } },
+  { t: 8.0, k: 'full', img: 'scene-01.jpg', s: [1.12, 1.04], x0: [0, -1], y0: [1, 0], g: 'steel',
+    x: { kind: 'card', l1: 'หัวข้อใหญ่ของฉากนี้', l2: 'บรรทัดรองอธิบายสั้น ๆ', d: 0.2 } },
+  { t: 12.0, k: 'full', img: 'scene-02.jpg', s: [1.04, 1.11], x0: [-1, 1], y0: [0, 0], g: 'dark',
+    x: { kind: 'card', l1: 'ประเด็นถัดไป', l2: 'อีกบรรทัดรอง', d: 0.2, e: 0.25 } },
+  { t: 16.0, k: 'black' },
+  { t: 16.54, k: 'title', v: 'portal', x: { kind: 'title', l1: BRAND.name, l2: BRAND.tagline, d: 0.02, e: 0.2 } },
+  { t: 20.54, k: 'wave', v: 1,
+    x: { kind: 'card', blue: true, l1: 'การ์ดบนพื้นคลื่นอนุภาค', l2: 'บรรทัดรอง', d: 0.2, e: 0.2 } },
+  { t: 24.54, k: 'four' },
+  { t: 28.54, k: 'creds',
+    x: { kind: 'card2', ac: AC.grp, lat: 'CREDENTIALS', nm: 'มาตรฐานหรือรางวัล', sub: 'ข้อความรอง',
+         f: ['ข้อย่อยที่ 1', 'ข้อย่อยที่ 2', 'ข้อย่อยที่ 3'] } },
+  { t: 32.54, k: 'title', v: 'hall', x: { kind: 'sect', e: 'SECTION LABEL', h: ['หัวข้อบท', 'บรรทัดที่สอง'], d: 0.3 } },
+  { t: 36.54, k: 'photoui', img: 'scene-03.jpg', fb: 'scene-03b.jpg', ui: 'ui-system-1.jpg', ar: 1016 / 614,
+    x: { kind: 'card2', ac: AC.grp, n: '01', ch: C1, nm: 'ชื่อระบบที่ 1', sub: 'คำอธิบายสั้น',
+         f: ['ฟีเจอร์ที่ 1', 'ฟีเจอร์ที่ 2', 'ฟีเจอร์ที่ 3', 'ฟีเจอร์ที่ 4'] } },
+  { t: 40.54, k: 'full', img: 'scene-04.jpg', fb: 'scene-04b.jpg', g: 'steel',
+    x: { kind: 'card2', ac: AC.gg, n: '02', ch: C2, nm: 'ชื่อระบบที่ 2', sub: 'คำอธิบายสั้น',
+         f: ['ฟีเจอร์ที่ 1', 'ฟีเจอร์ที่ 2', 'ฟีเจอร์ที่ 3'] } },
+  { t: 44.54, k: 'right', img: 'scene-05.jpg', s: [1.08, 1.0], g: 'steel',
+    x: { kind: 'card2', ac: AC.gg, n: '03', ch: C3, nm: 'ชื่อระบบที่ 3', sub: 'คำอธิบายสั้น',
+         f: ['ฟีเจอร์ที่ 1', 'ฟีเจอร์ที่ 2', 'ฟีเจอร์ที่ 3'] } },
+  // ปิด: ชื่อแบรนด์ → เงียบ → การ์ดท้ายตรงเสียงตูมสุดท้าย
+  { t: 48.54, k: 'title', v: 'portal', x: { kind: 'title', l1: BRAND.name, l2: BRAND.tagline, d: 0.02, e: 0.3 } },
+  { t: 52.9, k: 'black' },
+  { t: 56.54, k: 'black', x: { kind: 'end', d: 0.05, e: 0.6 } },
+];
+const FOUR = [
+  { ac: '#e8946a', img: 'four-1.jpg', n: 'ชื่อธุรกิจ 1', t: 'สิ่งที่ทำ', m: 'ที่ตั้ง · ปีก่อตั้ง' },
+  { ac: '#b39dff', img: 'four-2.jpg', n: 'ชื่อธุรกิจ 2', t: 'สิ่งที่ทำ', m: 'ที่ตั้ง · ปีก่อตั้ง' },
+  { ac: '#6ea8ff', img: 'four-3.jpg', n: 'ชื่อธุรกิจ 3', t: 'สิ่งที่ทำ', m: 'ที่ตั้ง · ปีก่อตั้ง' },
+  { ac: '#5fd38d', img: 'four-4.jpg', n: 'ชื่อธุรกิจ 4', t: 'สิ่งที่ทำ', m: 'ที่ตั้ง · ปีก่อตั้ง' },
+];
+const LEAKS = [[7.8, 0.5], [16.3, 0.5], [36.3, 0.5], [88.3, 0.5], [108.3, 0.6]];
+const HITS = [[0.0, .35], [8.0, .45], [16.54, 1.0], [24.54, .25], [28.54, .3], [32.54, .35], [36.54, .8], [88.54, .6], [108.54, .8]];
+
+// ---------- อนุภาคคลื่นและวงแหวนพลังงาน (จากรุ่นแรกของ /trailerintro) ----------
+const R = rng(20261018);
+const gauss = () => { let u = 0; for (let i = 0; i < 4; i++) u += R(); return (u - 2) / 0.577; };
+const COLS = [[205, 236, 255], [115, 185, 255], [62, 132, 255], [32, 84, 205]];
+const ALS = [0.9, 0.55, 0.26];
+const STYLE = []; for (const c of COLS) for (const a of ALS) STYLE.push(`rgba(${c[0]},${c[1]},${c[2]},${a})`);
+function bucketize(arr) { const b = Array.from({ length: 12 }, () => []); for (const p of arr) b[p.c * 3 + p.a].push(p); return b; }
+const WAVE = [];
+for (let i = 0; i < 42000; i++) {
+  const v = R() ** 2.2, al = (1 - v) ** 1.5;
+  WAVE.push({ u0: R(), v, ph: R() * TAU, sp: v < 0.05 && R() < 0.25,
+    c: v < 0.06 ? 0 : v < 0.22 ? 1 : v < 0.5 ? 2 : 3, a: al > 0.6 ? 0 : al > 0.3 ? 1 : 2, s: (v < 0.1 ? 2.1 : 1.4) + R() * 0.6 });
+}
+const WAVE_B = bucketize(WAVE);
+const WV = [
+  { rot: 0, zoom: 1.0, cx: .5, cy: .34, mx: 1 },
+  { rot: -0.14, zoom: 1.35, cx: .55, cy: .80, mx: -1 },
+  { rot: 0.10, zoom: 2.1, cx: .62, cy: .42, mx: 1 },
+  { rot: 0.22, zoom: 1.6, cx: .45, cy: .74, mx: -1 },
+];
+function drawWave(ctx, tau, k, variant, alpha) {
+  const V = WV[variant];
+  const z = V.zoom * (1 + 0.07 * k), cr = Math.cos(V.rot), sr = Math.sin(V.rot);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let b = 0; b < 12; b++) {
+    const arr = WAVE_B[b]; if (!arr.length) continue;
+    ctx.globalAlpha = alpha; ctx.fillStyle = STYLE[b];
+    for (const p of arr) {
+      const u = frac(p.u0 + tau * 0.018 * (0.5 + p.v));
+      let x = -0.15 + 1.3 * u;
+      const yc = 0.30 + 0.30 * x + 0.10 * Math.sin(2.4 * x + 0.6);
+      x += 0.010 * Math.sin(17 * u + 6 * p.v + tau * 1.1);
+      let y = yc + p.v * 0.55 + 0.025 * Math.sin(8 * u - 4 * p.v + tau * 0.8) * (0.3 + p.v) + 0.006 * Math.sin(37 * u + tau * 2.3 + p.ph);
+      if (p.sp) y -= 0.06 * frac(p.ph + tau * 0.28) ** 1.5;
+      const X = (x - V.cx) * W * V.mx, Y = (y - V.cy) * H;
+      const px = W / 2 + (X * cr - Y * sr) * z, py = H / 2 + (X * sr + Y * cr) * z;
+      if (px < -4 || px > W + 4 || py < -4 || py > H + 4) continue;
+      const s = p.s * Math.sqrt(z);
+      ctx.fillRect(px, py, s, s);
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+const RING = [];
+for (let i = 0; i < 26000; i++) {
+  const g = gauss(), ag = Math.abs(g);
+  RING.push({ t0: R() * TAU, g, w: R() < 0.12, ph: R(),
+    c: ag < 0.4 ? 0 : ag < 1 ? 1 : ag < 1.8 ? 2 : 3, a: ag < 0.6 ? 0 : ag < 1.4 ? 1 : 2, s: 1.3 + R() * 0.9 });
+}
+const RING_B = bucketize(RING);
+const RV = {
+  edgeL: { cx: .03, cy: .5, r: .62 }, edgeR: { cx: .97, cy: .5, r: .62 },
+  portal: { cx: .5, cy: .5, r: .5 }, hall: { cx: .5, cy: .45, r: .37, floor: true },
+};
+function ringXY(p, tau, cx, cy, Rr) {
+  const th = p.t0 + tau * 0.07 + (p.w ? 0.1 * tau : 0);
+  let rr = 1 + 0.028 * p.g + 0.022 * Math.sin(5 * p.t0 + tau * 1.4) + 0.014 * Math.sin(13 * p.t0 - tau * 2.2);
+  if (p.w) rr += 0.18 * frac(p.ph + tau * 0.22) ** 2 * (p.g > 0 ? 1 : -0.5);
+  return [cx + Rr * rr * Math.cos(th), cy + Rr * rr * Math.sin(th)];
+}
+function drawRing(ctx, tau, k, variant, alpha) {
+  const V = RV[variant];
+  const cx = V.cx * W, cy = V.cy * H, Rr = V.r * H * (1 + 0.04 * k);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = alpha;
+  ctx.lineWidth = Rr * 0.14; ctx.strokeStyle = 'rgba(40,110,255,0.10)';
+  ctx.beginPath(); ctx.arc(cx, cy, Rr, 0, TAU); ctx.stroke();
+  for (let f = 0; f < 3; f++) {   // เส้นใยไฟฟ้าสว่าง
+    ctx.beginPath();
+    for (let i = 0; i <= 420; i++) {
+      const a = i / 420 * TAU;
+      const rr = 1 + 0.006 * (f - 1) + 0.02 * Math.sin(5 * a + tau * 1.4 + f) + 0.012 * Math.sin(13 * a - tau * 2.2 + f * 2);
+      const x = cx + Rr * rr * Math.cos(a + tau * 0.07), y = cy + Rr * rr * Math.sin(a + tau * 0.07);
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.lineWidth = 1.3; ctx.strokeStyle = 'rgba(175,220,255,0.38)'; ctx.stroke();
+  }
+  for (let b = 0; b < 12; b++) {
+    const arr = RING_B[b]; if (!arr.length) continue;
+    ctx.fillStyle = STYLE[b];
+    for (const p of arr) {
+      const [x, y] = ringXY(p, tau, cx, cy, Rr);
+      if (x < -4 || x > W + 4 || y < -4 || y > H + 4) continue;
+      ctx.fillRect(x, y, p.s, p.s);
+    }
+  }
+  if (V.floor) {   // เงาสะท้อนบนพื้นเปียก
+    const fy = cy + Rr * 1.08;
+    ctx.globalAlpha = alpha * 0.22;
+    for (let b = 0; b < 12; b++) {
+      const arr = RING_B[b]; ctx.fillStyle = STYLE[b];
+      for (let i = 0; i < arr.length; i += 2) {
+        const [x, y] = ringXY(arr[i], tau, cx, cy, Rr);
+        const ry = fy + (fy - y) * 0.30;
+        if (ry > H) continue;
+        ctx.fillRect(x, ry, 2.2, 1.2);
+      }
+    }
+  }
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+}
+function darkBg(ctx, x, y) {
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W * x, H * y, 0, W * x, H * y, W * .65);
+  g.addColorStop(0, 'rgba(8,22,50,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+
+// ---------- แสงรั่วโทนอำพัน/น้ำเงิน ----------
+const lk = $('leak').getContext('2d');
+function drawLeak(t) {
+  lk.clearRect(0, 0, 480, 270);
+  for (const [lt, d] of LEAKS) {
+    const u = (t - lt) / d; if (u < 0 || u > 1) continue;
+    const a = Math.sin(u * Math.PI);
+    const blobs = [[0.12 + u * 0.75, 0.45, 'rgba(255,170,70,', 230], [0.85 - u * 0.5, 0.55, 'rgba(80,140,255,', 210], [0.5, 0.25 + u * 0.3, 'rgba(255,230,190,', 150]];
+    for (const [bx, by, c, r] of blobs) {
+      const g = lk.createRadialGradient(bx * 480, by * 270, 0, bx * 480, by * 270, r);
+      g.addColorStop(0, c + (0.9 * a) + ')'); g.addColorStop(1, c + '0)');
+      lk.fillStyle = g; lk.fillRect(0, 0, 480, 270);
+    }
+  }
+}
+
+// ---------- ฝุ่นลอยในแสง ----------
+const DUST = []; { const Q = rng(31337); for (let i = 0; i < 140; i++) DUST.push([Q() * W, Q() * H, 0.6 + Q() ** 3 * 3.4, Q(), 4 + Q() * 14, Q() * TAU]); }
+function drawDust(ctx, t, amt) {
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [x0, y0, r, b, sp, ph] of DUST) {
+    const x = (x0 + t * sp + Math.sin(t * 0.3 + ph) * 30) % W, y = (y0 - t * sp * 0.35 + H * 4) % H;
+    const a = amt * (0.12 + 0.35 * b) * (0.6 + 0.4 * Math.sin(t * 0.8 + ph));
+    const gd = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+    gd.addColorStop(0, `rgba(255,236,205,${a.toFixed(3)})`); gd.addColorStop(1, 'rgba(255,236,205,0)');
+    ctx.fillStyle = gd; ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// ---------- ตัวอักษรโผล่ทีละตัว (ตัดบรรทัดเฉพาะระหว่างคำไทย) ----------
+const SEG = new Intl.Segmenter('th', { granularity: 'grapheme' });
+const WSEG = new Intl.Segmenter('th', { granularity: 'word' });
+function glyphs(s, seed, spread = 0.32) {
+  const Q = rng(seed);
+  const one = ch => `<span class="g" data-d="${(Q() * spread).toFixed(3)}" data-x="${((Q() - 0.5) * 14).toFixed(1)}">${ch}</span>`;
+  return Array.from(WSEG.segment(s), x => x.segment).map(w => {
+    const inner = Array.from(SEG.segment(w), x => x.segment).map(one).join('');
+    return /^\s+$/.test(w) ? inner : `<span class="w">${inner}</span>`;
+  }).join('');
+}
+function revealGlyphs(root, dt, dur) {
+  for (const el of root.querySelectorAll('.g')) {
+    const p = ease(clamp((dt - +el.dataset.d) / dur, 0, 1));
+    el.style.opacity = p.toFixed(3);
+    el.style.filter = p < 1 ? `blur(${((1 - p) * 8).toFixed(2)}px)` : 'none';
+    el.style.transform = `translateX(${((1 - p) * el.dataset.x).toFixed(2)}px)`;
+  }
+}
+function fitWidth(el, target) { el.style.fontSize = '100px'; const w = el.getBoundingClientRect().width; el.style.fontSize = (100 * target / w).toFixed(2) + 'px'; }
+const isThai = s => /[฀-๿]/.test(s);
+
+let curShot = -1, curText = '';
+const fx = $('fx').getContext('2d');
+const gl = $('glow').getContext('2d');
+const gr = $('grain').getContext('2d');
+const NOISE = []; { const r2 = rng(99); for (let n = 0; n < 8; n++) { const im = gr.createImageData(640, 360);
+  for (let i = 0; i < im.data.length; i += 4) { const v = r2() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } NOISE.push(im); } }
+
+const IMGOK = new Set();
+const pick = S => (IMGOK.has(S.img) || !S.fb) ? S.img : S.fb;
+function buildShot(S) {
+  const P = $('plate');
+  P.style.background = (S.k === 'screen' || S.k === 'docs' || S.k === 'logo' || S.k === 'creds' || S.k === 'four')
+    ? 'radial-gradient(ellipse at 70% 50%, rgba(28,58,112,.62) 0%, rgba(4,8,16,1) 58%)' : 'none';
+  if (S.k === 'full') P.innerHTML = `<img class="ph" id="ph" src="img/${pick(S)}" style="filter:${GRADE[S.g]}">`;
+  else if (S.k === 'photoui') {
+    let w = 600, h = w / S.ar; if (h > 400) { h = 400; w = h * S.ar; }
+    const cx = 1550, cy = 720;
+    P.innerHTML = `<img class="ph" id="ph" src="img/${pick(S)}" style="filter:${GRADE.dim}">`
+      + `<div class="scr" id="ui" style="width:${w.toFixed(0)}px;height:${h.toFixed(0)}px;left:${(cx - w / 2).toFixed(0)}px;top:${(cy - h / 2).toFixed(0)}px"><img src="img/${S.ui}"></div>`;
+  } else if (S.k === 'four') {
+    P.innerHTML = '<div class="four" id="ph">' + FOUR.map(c => `<div class="col" style="--ac:${c.ac}"><div class="cimg"><img src="img/${c.img}"></div>`
+      + `<div class="cn">${c.n}</div><div class="ct">${c.t}</div><div class="cm">${c.m}</div></div>`).join('') + '</div>';
+  } else if (S.k === 'creds') {
+    P.innerHTML = `<div id="ph" style="position:absolute;inset:0;transform-origin:72% 50%">`
+      + `<div class="doc" style="width:300px;height:425px;left:1080px;top:190px;transform:rotateY(14deg) rotateZ(-3deg)"><img src="img/s04_6.jpg"></div>`
+      + `<div class="doc" style="width:300px;height:425px;left:1410px;top:170px;transform:rotateY(-12deg) rotateZ(2.5deg)"><img src="img/s04_11.jpg"></div>`
+      + `<img src="img/cert-logo.png" style="position:absolute;left:1180px;top:690px;width:480px;height:189px;mix-blend-mode:screen"></div>`;
+  }
+  else if (S.k === 'right') P.innerHTML = `<div class="rt"><img id="ph" src="img/${S.img}" style="filter:${GRADE[S.g]}"></div>`;
+  else if (S.k === 'title') P.innerHTML = `<img class="hall" id="ph" src="img/warehouse.png" style="filter:brightness(${S.v === 'hall' ? .8 : .55}) contrast(1.1)">`;
+  else if (S.k === 'screen') {
+    let w = 840, h = w / S.ar; if (h > 600) { h = 600; w = h * S.ar; }
+    const cx = 1410, cy = 560;
+    P.innerHTML = `<div class="scr" id="ph" style="width:${w.toFixed(0)}px;height:${h.toFixed(0)}px;left:${(cx - w / 2).toFixed(0)}px;top:${(cy - h / 2).toFixed(0)}px"><img src="img/${S.img}"></div>`;
+  } else if (S.k === 'docs') {
+    P.innerHTML = `<div id="ph" style="position:absolute;inset:0;transform-origin:72% 50%">`
+      + `<div class="doc" style="width:350px;height:496px;left:1090px;top:300px;transform:rotateY(14deg) rotateZ(-3deg)"><img src="img/s04_6.jpg"></div>`
+      + `<div class="doc" style="width:350px;height:496px;left:1440px;top:276px;transform:rotateY(-12deg) rotateZ(2.5deg)"><img src="img/s04_11.jpg"></div></div>`;
+  } else if (S.k === 'logo') P.innerHTML = `<img class="logo" id="ph" src="img/${S.img}" style="width:560px;height:220px;margin:-110px 0 0 -280px;left:1520px;mix-blend-mode:screen">`;
+  else P.innerHTML = '';
+}
+
+function buildText(T, seed) {
+  const X = $('txt');
+  if (!T) { X.innerHTML = ''; return; }
+  if (T.kind === 'logo0') X.innerHTML = '<div class="ctr"><img class="lg0" src="img/s01_4.png"></div>';
+  else if (T.kind === 'wm') X.innerHTML = `<div class="ctr" style="padding-left:300px"><div class="wm">${T.l1}</div><div class="wm2">${T.l2}</div></div>`;
+  else if (T.kind === 'card') X.innerHTML = `<div class="ctr${T.blue ? ' blue' : ''}"><div class="c1">${glyphs(T.l1, seed)}</div>` + (T.l2 ? `<div class="c2 fade">${T.l2}</div>` : '') + '</div>';
+  else if (T.kind === 'title') {
+    X.innerHTML = `<div class="ctr"><div class="tt" id="tt">${glyphs(T.l1, seed, 0.45)}</div><div class="tline" id="tl"></div><div class="tts fade">${T.l2}</div></div>`;
+    fitWidth($('tt'), 860);
+  } else if (T.kind === 'sect') X.innerHTML = `<div class="ctr sect" style="padding-bottom:40px"><div class="e fade">${T.e}</div>` + T.h.map((l, i) => `<div class="h">${glyphs(l, seed + i)}</div>`).join('') + '</div>';
+  else if (T.kind === 'card2') {
+    const eb = T.ch ? `<span class="n">${T.n}</span><span>${T.ch}</span>` : (T.n ? `<span class="n">${T.n}</span>` : '') + `<span class="lat">${T.lat}</span>`;
+    X.innerHTML = `<div class="blk" style="--ac:${T.ac}"><div class="eb fade">${eb}</div>`
+      + `<div class="nm${isThai(T.nm) ? ' th' : ''}">${glyphs(T.nm, seed, 0.3)}</div>`
+      + (T.sub ? `<div class="sub fade">${T.sub}</div>` : '')
+      + `<div class="rule" id="rule"></div>`
+      + T.f.map(s => `<div class="ft step">${s}</div>`).join('')
+      + (T.meta ? `<div class="meta step">${T.meta}</div>` : '') + '</div>';
+    const nm = X.querySelector('.nm');   // ชื่ออังกฤษยาวเกินกรอบ ย่อฟอนต์ให้พอดี 860px
+    if (nm && !isThai(T.nm)) { const w = nm.scrollWidth; if (w > 860) nm.style.fontSize = (78 * 860 / w).toFixed(1) + 'px'; }
+  } else if (T.kind === 'end') {
+    X.innerHTML = '<div class="ctr end"><img class="lg fade" src="img/s01_4.png"><div class="l1 fade">' + BRAND.cta + '</div>'
+      + '<div class="cos fade">' + BRAND.companies + '</div>'
+      + '<div class="url fade">' + BRAND.urls + '</div>'
+      + '<div class="ct fade">' + BRAND.contact + '</div>'
+      + '<div class="bill fade" id="bill">' + BRAND.bill + '</div>'
+      + '<div class="cred fade">' + (window.CREDIT || BRAND.credit) + '</div></div>';
+  }
+}
+
+window.renderAt = function (t) {
+  let si = 0; while (si + 1 < SHOTS.length && SHOTS[si + 1].t <= t) si++;
+  const S = SHOTS[si], end = SHOTS[si + 1] ? SHOTS[si + 1].t : TOTAL, dur = end - S.t, tau = t - S.t, k = clamp(tau / dur, 0, 1);
+  if (si !== curShot) { buildShot(S); curShot = si; }
+
+  // แฟลช + กระแทกกล้อง
+  let fl = 0, pu = 0;
+  for (const [ht, s] of HITS) if (t >= ht) { fl += s * 0.42 * Math.exp(-(t - ht) * 9); pu += s * 0.025 * Math.exp(-(t - ht) * 4); }
+  $('flash').style.opacity = Math.min(0.55, fl).toFixed(3);
+  $('cam').style.transform = `scale(${(1 + pu).toFixed(4)})`;
+
+  const ph = $('ph');
+  if ((S.k === 'full' || S.k === 'photoui') && ph) {
+    const ss = S.s || [1.1, 1.02], sx = S.x0 || [0, 0], sy = S.y0 || [0, 0];
+    const sc = ss[0] + (ss[1] - ss[0]) * k, x = sx[0] + (sx[1] - sx[0]) * k, y = sy[0] + (sy[1] - sy[0]) * k;
+    ph.style.transform = `translate(${x}%, ${y}%) scale(${sc.toFixed(4)})`;
+  }
+  if (S.k === 'right' && ph) ph.style.transform = `scale(${(S.s[0] + (S.s[1] - S.s[0]) * k).toFixed(4)})`;
+  if (S.imgs && ph) { const want = 'img/' + S.imgs[Math.min(S.imgs.length - 1, Math.floor(tau / (dur / S.imgs.length)))]; if (!ph.getAttribute('src').endsWith(want)) ph.setAttribute('src', want); }
+  if (S.k === 'title' && ph) ph.style.transform = `scale(${(1 + 0.05 * k).toFixed(4)})`;
+  if (S.k === 'screen' && ph) ph.style.transform = `rotateY(${(-S.side * (16 - 9 * ease(k))).toFixed(2)}deg) rotateX(3deg) translateX(${(30 - 30 * k).toFixed(1)}px) scale(${(0.95 + 0.07 * k).toFixed(4)})`;
+  if ((S.k === 'docs' || S.k === 'creds') && ph) ph.style.transform = `scale(${(0.97 + 0.06 * k).toFixed(4)})`;
+  if (S.k === 'photoui') { const ui = $('ui'); if (ui) { const q = ease(clamp((tau - 1.6) / 0.6, 0, 1));
+    ui.style.opacity = q.toFixed(3); ui.style.transform = `rotateY(${(-12 + 6 * k).toFixed(2)}deg) rotateX(3deg) translateY(${((1 - q) * 30).toFixed(1)}px) scale(${(0.95 + 0.06 * k).toFixed(4)})`; } }
+  if (S.k === 'four' && ph) ph.querySelectorAll('.col').forEach((c, i) => { const q = ease(clamp((tau - 0.1 - i * 0.18) / 0.5, 0, 1));
+    c.style.opacity = q.toFixed(3); c.style.transform = `translateY(${((1 - q) * 26).toFixed(1)}px)`; });
+  if (S.k === 'logo' && ph) { ph.style.transform = `scale(${(0.92 + 0.08 * ease(k)).toFixed(4)})`; ph.style.opacity = ease(clamp(tau / 0.6, 0, 1)).toFixed(3); }
+
+  // ภาพเข้าจากมืดสั้น ๆ ทุกคัต · ฉากชื่อเรื่องจางออกท้ายช็อต
+  let po = 0.55 + 0.45 * ease(clamp(tau / 0.22, 0, 1));
+  // 21/10/2569 ฉากชื่อเรื่องจางเป็นดำเฉพาะเมื่อช็อตถัดไปเป็นจอดำ (การ์ดท้าย) ถ้าต่อด้วยภาพให้ตัดตรงด้วยแฟลช ไม่งั้นเห็นจอดำค้างเหมือนวิดีโอสะดุด
+  const toBlack = !SHOTS[si + 1] || SHOTS[si + 1].k === 'black';
+  if (S.k === 'title' && toBlack) po *= 1 - ease(clamp((tau - (dur - 0.5)) / 0.5, 0, 1));
+  if (S.k === 'wave' && si + 1 < SHOTS.length && SHOTS[si + 1].k === 'black') po *= 1 - ease(clamp((tau - (dur - 0.6)) / 0.6, 0, 1));
+  $('plate').style.opacity = po.toFixed(3);
+
+  // ม่านหลังตัวหนังสือ
+  const sc = $('scrim');
+  if (S.x && S.x.kind === 'card2' && (S.k === 'full' || S.k === 'wave' || S.k === 'photoui')) { sc.style.background = 'linear-gradient(90deg, rgba(0,0,0,.84) 0%, rgba(0,0,0,.66) 42%, rgba(0,0,0,0) 68%)'; sc.style.opacity = 1; }
+  else if (S.x && S.x.kind === 'card' && !S.x.blue) { sc.style.background = 'radial-gradient(ellipse 50% 36% at 50% 50%, rgba(0,0,0,.62) 0%, rgba(0,0,0,0) 100%)'; sc.style.opacity = $('txt').style.opacity || 0; }
+  else sc.style.opacity = 0;
+
+  // อนุภาค วงแหวน คลื่น
+  fx.clearRect(0, 0, W, H);
+  let glowOn = false;
+  if (S.k === 'ring') { darkBg(fx, .1, .5); drawRing(fx, t, k, S.v, 1); glowOn = true; }
+  else if (S.k === 'wave') { darkBg(fx, .3, .3); drawWave(fx, t, k, S.v, po); glowOn = true; }
+  else if (S.k === 'title') { const a = 1 - ease(clamp((tau - (dur - 0.5)) / 0.5, 0, 1)); drawRing(fx, t, k, S.v, a * ease(clamp(tau / 0.35, 0, 1))); glowOn = true; }
+  drawDust(fx, t, S.k === 'black' ? 0.5 : (glowOn ? 0.4 : 1));
+  gl.clearRect(0, 0, 480, 270);
+  if (glowOn) gl.drawImage(fx.canvas, 0, 0, 480, 270);
+  drawLeak(t);
+
+  // ตัวหนังสือของช็อต
+  const T = S.x, key = T ? si + ':' + T.kind : '';
+  if (key !== curText) { buildText(T, Math.round(S.t * 100) + 7); curText = key; }
+  const X = $('txt');
+  if (T) {
+    const a = S.t + (T.d ?? 0.12), b = end - (T.e ?? 0.1), dt = t - a;
+    let o = clamp((t - a) / 0.25, 0, 1) * clamp((b - t) / 0.25, 0, 1);
+    if (T.kind === 'card' || T.kind === 'sect') revealGlyphs(X, dt, 0.5);
+    if (T.kind === 'card2') revealGlyphs(X, dt - 0.15, 0.32);
+    if (T.kind === 'title') {
+      revealGlyphs(X, dt, 0.16);
+      const tl = $('tl'); if (tl) tl.style.width = (640 * ease(clamp((dt - 0.3) / 0.9, 0, 1))).toFixed(0) + 'px';
+      X.style.transform = `scale(${(1.05 - 0.05 * ease(clamp(dt / 4.2, 0, 1))).toFixed(4)})`;
+    } else if (T.kind === 'wm') {
+      for (const el of X.querySelectorAll('.wm,.wm2')) { const ls = (0.42 + 0.14 * ease(clamp(dt / 3, 0, 1))).toFixed(3) + 'em'; el.style.letterSpacing = ls; el.style.paddingLeft = ls; }
+      X.style.transform = 'none';
+    } else if (T.kind === 'logo0') X.style.transform = `scale(${(0.94 + 0.1 * ease(k)).toFixed(4)})`;   // โลโก้ขยายช้า ๆ ไม่ค้างนิ่ง
+    else X.style.transform = 'none';
+    const fd0 = T.kind === 'end' ? 0.0 : 0.25;   // การ์ดท้ายเริ่มขึ้นทันทีที่ชื่อเรื่องจางหมด ไม่ค้างจอดำ
+    X.querySelectorAll('.fade').forEach((el, i) => { const p = ease(clamp((dt - fd0 - i * 0.12) / 0.45, 0, 1)); el.style.opacity = p.toFixed(3); el.style.transform = `translateY(${((1 - p) * 10).toFixed(1)}px)`; });
+    const stepGap = T.f && T.f.length > 3 ? 0.22 : 0.28;
+    X.querySelectorAll('.step').forEach((el, i) => { const p = ease(clamp((dt - 0.55 - i * stepGap) / 0.35, 0, 1)); el.style.opacity = p.toFixed(3); el.style.transform = `translateX(${((1 - p) * -14).toFixed(1)}px)`; });
+    const ru = $('rule'); if (ru) ru.style.width = (130 * ease(clamp((dt - 0.35) / 0.5, 0, 1))).toFixed(0) + 'px';
+    if ((T.kind === 'title' || T.kind === 'wm' || T.kind === 'logo0') && dt < 0.3) o *= 0.6 + 0.4 * Math.abs(Math.sin(dt * 85));   // กะพริบตอนเข้า
+    if (T.kind === 'end') o = clamp((t - a) / 0.3, 0, 1) * clamp((b - t) / 0.9, 0, 1);
+    X.style.opacity = o.toFixed(3);
+  } else X.style.opacity = 0;
+
+  gr.putImageData(NOISE[Math.floor(t * 24) % 8], 0, 0);
+};
+
+window.ready = async function () {
+  await document.fonts.ready;
+  for (const f of ['900 40px Archivo', '800 40px Archivo', '700 40px Archivo', '500 40px Archivo', '300 40px Archivo', '300 40px Kanit', '400 40px Kanit']) await document.fonts.load(f, 'AKกขิ์');
+  const srcs = [...new Set(SHOTS.flatMap(s => [s.img, s.fb, s.ui, ...(s.imgs || [])]).filter(Boolean).concat(FOUR.map(c => c.img), ['s04_6.jpg', 's04_11.jpg', 's01_4.png', 'warehouse.png', 'cert-logo.png']))];
+  const bad = [];
+  await Promise.all(srcs.map(s => { const im = new Image(); im.src = 'img/' + s; return im.decode().then(() => IMGOK.add(s)).catch(() => bad.push(s)); }));
+  return { fonts: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight).join(', '), images: srcs.length, missing: bad };
+};
+</script>
+</body>
+</html>

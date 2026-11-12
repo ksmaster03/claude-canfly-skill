@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<!-- 19/10/2026 intro แบบช่วงเปิดเทรลเลอร์ (สูตรจาก UNSHATTER): การ์ดตัวอักษรโผล่สุ่มพร้อมเบลอ จุ่มดำ แสงรั่ว สโตรบ ชื่อสองบรรทัดขาว/แดง เรนเดอร์ด้วย renderAt(t) -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,700;125,800;125,900&family=Antonio:wght@300;400&family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; width:1920px; height:1080px; overflow:hidden; background:#000; }
+  #stage { position:absolute; inset:0; overflow:hidden; background:#000; }
+  #cam { position:absolute; inset:0; transform-origin:50% 50%; }
+  #plate { position:absolute; inset:0; overflow:hidden; perspective:1800px; }
+  #plate .scr { position:absolute; top:50%; left:50%; border-radius:10px; overflow:hidden;
+                box-shadow:0 0 120px rgba(70,140,255,.35), 0 40px 90px rgba(0,0,0,.9), 0 0 0 1px rgba(160,200,255,.25); }
+  #plate .scr img { display:block; width:100%; height:100%; object-fit:cover; object-position:50% 0; filter:brightness(.82) contrast(1.15) saturate(.9); }
+  #plate .ph { position:absolute; left:0; top:0; width:1920px; height:1080px; object-fit:cover; transform-origin:50% 50%; }
+  #plate .pn { position:absolute; top:50%; left:50%; box-shadow:0 30px 80px rgba(0,0,0,.8); transform-origin:50% 50%; }
+  #plate .pn img { display:block; width:100%; height:100%; object-fit:cover; }
+  #plate .row { position:absolute; left:0; right:0; top:50%; display:flex; justify-content:center; gap:34px; }
+  canvas { position:absolute; left:0; top:0; width:1920px; height:1080px; }
+  #leak { mix-blend-mode:screen; }
+  #txt { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .g { display:inline-block; white-space:pre; }
+  .card { font-family:Archivo; font-stretch:125%; font-weight:700; font-size:46px; line-height:1.12; color:#b6b6b7; text-transform:uppercase; white-space:nowrap; }
+  .t1, .t2 { font-family:Archivo; font-stretch:125%; font-weight:900; text-transform:uppercase; white-space:nowrap; line-height:.9; }
+  .t1 { color:#fff; }
+  .t2 { color:#d91b22; -webkit-mask-image:var(--grunge); mask-image:var(--grunge); -webkit-mask-size:100% 100%; mask-size:100% 100%; }
+  .wm { display:flex; gap:120px; align-items:center; }
+  .wm .a { font-family:Archivo; font-stretch:125%; font-weight:800; font-size:36px; color:#ececec; letter-spacing:.12em; }
+  .wm .b { font-family:Kanit; font-weight:600; font-size:46px; color:#ececec; }
+  .endth { font-family:Kanit; font-weight:600; font-size:46px; color:#fff; margin-bottom:8px; }
+  .endbig { font-family:Archivo; font-stretch:125%; font-weight:900; font-size:70px; color:#fff; text-transform:uppercase; line-height:1; }
+  .endurl { font-family:Archivo; font-stretch:125%; font-weight:800; font-size:31px; color:#d91b22; margin-top:18px; white-space:nowrap; }
+  .bill { font-family:Antonio, Kanit; font-weight:300; font-size:21px; color:#8e8e8e; text-transform:uppercase; text-align:center; width:1250px; line-height:1.15; margin-top:50px; }
+  #vig { position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%); }
+  #grain { opacity:.09; mix-blend-mode:overlay; }
+  #flash { position:absolute; inset:0; background:#fff; opacity:0; }
+  #black { position:absolute; inset:0; background:#000; opacity:0; }
+  .bar { position:absolute; left:0; right:0; height:21px; background:#000; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <div id="plate"></div>
+    <canvas id="fx" width="1920" height="1080"></canvas>
+    <canvas id="leak" width="480" height="270"></canvas>
+  </div>
+  <div id="vig"></div>
+  <div id="txt"></div>
+  <canvas id="grain" width="640" height="360"></canvas>
+  <div id="flash"></div>
+  <div id="black"></div>
+  <div class="bar" style="top:0"></div><div class="bar" style="bottom:0"></div>
+</div>
+<script>
+const W = 1920, H = 1080, TOTAL = 40.0;
+const TAU = Math.PI * 2;
+function rng(s) { return () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const ease = x => x * x * (3 - 2 * x);
+const $ = id => document.getElementById(id);
+
+// เกรดภาพ: ดำจัด สลับโทนแดง/น้ำเงินแบบเทรลเลอร์
+const GRADE = {
+  cool: 'contrast(1.25) brightness(.78) saturate(1.05) hue-rotate(-8deg)',
+  warm: 'contrast(1.25) brightness(.8) saturate(1.15) sepia(.15)',
+  dark: 'contrast(1.3) brightness(.55) saturate(1.1)',
+  pop:  'contrast(1.2) brightness(.92) saturate(1.2)',
+};
+
+// ---------- ช็อต (ตัดตรงห้องเพลง: เพลงเริ่มที่ 2.0 วิ ห้องละ 2 วิ) ----------
+const STROBE = ['portrait.png', 'client-system-1.jpg', 'book-1.jpg', 'event-poster-2.jpg', 'own-product-3.jpg', 'cover-2.jpg',
+  'client-system-2.jpg', 'book-2.jpg', 'event-poster-1.jpg', 'own-product-2.jpg', 'cert01.png', 'client-system-3.jpg',
+  'book-3.jpg', 'stage.jpg', 'own-product-4.jpg', 'book-4.jpg', 'portrait.png', 'own-product-1.jpg'];
+const SHOTS = [
+  { t: 0.00, k: 'wm' },
+  { t: 2.00, k: 'photo', img: 'stage.jpg', s: [1.22, 1.08], x: [0, 0], y: [-2, 0], g: 'cool' },
+  { t: 4.00, k: 'photo', img: 'portrait.png', s: [1.05, 1.14], x: [10, 8], y: [4, 3], g: 'cool', fit: 'contain' },
+  { t: 6.00, k: 'bokeh', seed: 3, dip: true },
+  { t: 9.60, k: 'screen', img: 'client-system-2.jpg', side: 1 },
+  { t: 10.80, k: 'screen', img: 'own-product-2.jpg', side: -1 },
+  { t: 12.00, k: 'laser', dip: true },
+  { t: 15.30, k: 'trio', imgs: ['book-1.jpg', 'book-5.jpg', 'book-2.jpg'] },
+  { t: 16.60, k: 'screen', img: 'own-books.jpg', side: 1 },
+  { t: 18.00, k: 'photo', img: 'stage.jpg', s: [2.1, 1.95], x: [0, 0], y: [-30, -30], g: 'dark', dip: true },
+  { t: 21.40, k: 'panel', img: 'event-poster-2.jpg', w: 640, h: 800, s: [1.0, 1.08] },
+  { t: 22.70, k: 'panel', img: 'event-poster-1.jpg', w: 640, h: 800, s: [1.08, 1.0] },
+  { t: 24.00, k: 'photo', img: 'portrait.png', s: [1.0, 1.06], x: [-14, -14], y: [3, 3], g: 'pop', fit: 'contain' },
+  { t: 25.00, k: 'screen', img: 'client-system-1.jpg', side: -1 },
+  { t: 26.00, k: 'panel', img: 'music-4.jpg', w: 640, h: 640, s: [1.0, 1.06] },
+  { t: 26.50, k: 'screen', img: 'own-product-3.jpg', side: 1 },
+  { t: 27.00, k: 'badges' },
+  { t: 27.50, k: 'screen', img: 'own-product-4.jpg', side: -1 },
+  { t: 28.00, k: 'screen', img: 'client-system-3.jpg', side: 1 },
+  { t: 28.50, k: 'strobe' },
+  { t: 30.00, k: 'black' },
+  { t: 30.50, k: 'photo', img: 'stage.jpg', s: [2.05, 1.9], x: [0, 0], y: [-30, -30], g: 'cool', fadeTo: [0.6, 1.9] },
+  { t: 35.10, k: 'black' },
+];
+const TEXTS = [
+  { a: 0.25, b: 2.0, kind: 'wm' },
+  { a: 6.40, b: 9.60, kind: 'card', l: ['20 years in enterprise IT'] },
+  { a: 12.30, b: 15.30, kind: 'card', l: ['36 Thai ebooks with ISBN'] },
+  { a: 18.30, b: 21.40, kind: 'card', l: ['8 AI and cloud', 'certifications'] },
+  { a: 30.52, b: 35.10, kind: 'title', l: ['Your Name', 'Your Job Title'] },
+  { a: 35.10, b: 40.0, kind: 'end' },
+];
+const LEAKS = [[1.9, 0.5], [9.45, 0.55], [15.2, 0.45], [23.9, 0.5]];
+const HITS = [[2.0, .35], [12.0, .45], [24.0, .8], [26.0, .3], [28.0, .3], [30.5, 1.0]];
+
+// ---------- พื้นหลังไฟเบลอ (โบเก้) ----------
+function drawBokeh(ctx, tau, seed) {
+  const R = rng(seed * 997 + 11);
+  ctx.fillStyle = '#050304'; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 90; i++) {
+    const x0 = R() * W, y0 = R() * H, r = 18 + R() ** 2 * 95, warm = R();
+    const col = warm < 0.62 ? [255, 40, 60] : warm < 0.85 ? [255, 120, 140] : [255, 236, 210];
+    const a = (0.25 + R() * 0.5) * (0.75 + 0.25 * Math.sin(tau * (1 + R() * 2) + R() * TAU));
+    const x = x0 + Math.sin(tau * 0.3 + i) * 14 + tau * 10 * (R() - 0.5), y = y0 + Math.cos(tau * 0.25 + i) * 10;
+    const gr = ctx.createRadialGradient(x, y, r * 0.55, x, y, r);
+    gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(0.85, `rgba(${col},${a * 0.8})`); gr.addColorStop(1, `rgba(${col},0)`);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+// ---------- เลเซอร์แตกกระจายบนเวที ----------
+function drawLaser(ctx, tau) {
+  const R = rng(4242);
+  ctx.fillStyle = '#02060f'; ctx.fillRect(0, 0, W, H);
+  const cx = W * 0.5, cy = H * 0.3;
+  const hz = ctx.createRadialGradient(cx, H * 0.75, 0, cx, H * 0.75, W * 0.6);
+  hz.addColorStop(0, 'rgba(40,90,190,.55)'); hz.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = hz; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'lighter';
+  const grow = ease(clamp(tau / 0.7, 0, 1)) * (1 - 0.55 * ease(clamp((tau - 1.0) / 1.6, 0, 1)));
+  for (let i = 0; i < 120; i++) {
+    const side = R() < 0.5 ? -1 : 1, ang = (R() - 0.5) * 0.5 + (R() < 0.15 ? (R() - 0.5) * 1.4 : 0);
+    const len = (400 + R() * 1100) * grow, wob = Math.sin(tau * 6 + i) * 0.02;
+    const x2 = cx + side * Math.cos(ang + wob) * len, y2 = cy + Math.sin(ang + wob) * len * 0.35;
+    const a = (0.2 + R() * 0.55) * (0.7 + 0.3 * Math.sin(tau * 13 + i * 3));
+    const lg = ctx.createLinearGradient(cx, cy, x2, y2);
+    lg.addColorStop(0, `rgba(235,245,255,${a})`); lg.addColorStop(1, 'rgba(90,150,255,0)');
+    ctx.strokeStyle = lg; ctx.lineWidth = 1 + R() * 5; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 160 * (0.4 + grow));
+  core.addColorStop(0, 'rgba(255,255,255,.9)'); core.addColorStop(1, 'rgba(120,170,255,0)');
+  ctx.fillStyle = core; ctx.fillRect(cx - 300, cy - 300, 600, 600);
+  ctx.strokeStyle = 'rgba(200,225,255,.55)'; ctx.lineWidth = 2;   // ลำแสงตั้งลงเวที
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, H * 0.86); ctx.stroke();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#000';   // เงาหัวคนดูแถวหน้า
+  for (let i = 0; i < 70; i++) { const x = (i / 70) * W + R() * 20, r = 16 + R() * 14; ctx.beginPath(); ctx.arc(x, H - 30 - R() * 18, r, 0, TAU); ctx.fill(); }
+  ctx.fillRect(0, H - 40, W, 40);
+}
+
+// ---------- แสงรั่ว ----------
+const lk = $('leak').getContext('2d');
+function drawLeak(t) {
+  lk.clearRect(0, 0, 480, 270);
+  for (const [lt, d] of LEAKS) {
+    const u = (t - lt) / d; if (u < 0 || u > 1) continue;
+    const a = Math.sin(u * Math.PI);
+    const blobs = [[0.15 + u * 0.7, 0.4, 'rgba(255,80,170,', 220], [0.8 - u * 0.5, 0.6, 'rgba(130,90,255,', 200], [0.5, 0.2 + u * 0.3, 'rgba(255,215,150,', 160]];
+    for (const [bx, by, c, r] of blobs) {
+      const g = lk.createRadialGradient(bx * 480, by * 270, 0, bx * 480, by * 270, r);
+      g.addColorStop(0, c + (0.95 * a) + ')'); g.addColorStop(1, c + '0)');
+      lk.fillStyle = g; lk.fillRect(0, 0, 480, 270);
+    }
+  }
+}
+
+// ---------- ตัวอักษรโผล่ทีละตัวแบบสุ่ม (ไทยตัดทีละ grapheme) ----------
+const SEG = new Intl.Segmenter('th', { granularity: 'grapheme' });
+function glyphs(s, seed) {
+  const R = rng(seed);
+  return Array.from(SEG.segment(s), x => x.segment).map(ch => `<span class="g" data-d="${(R() * 0.32).toFixed(3)}" data-x="${((R() - 0.5) * 16).toFixed(1)}">${ch}</span>`).join('');
+}
+function revealGlyphs(root, dt, dur) {
+  for (const el of root.querySelectorAll('.g')) {
+    const p = ease(clamp((dt - +el.dataset.d) / dur, 0, 1));
+    el.style.opacity = p.toFixed(3);
+    el.style.filter = p < 1 ? `blur(${((1 - p) * 9).toFixed(2)}px)` : 'none';
+    el.style.transform = `translateX(${((1 - p) * el.dataset.x).toFixed(2)}px)`;
+  }
+}
+
+function fitWidth(el, target) {   // ปรับขนาดฟอนต์ให้บรรทัดกว้างเท่ากัน (บล็อกชื่อเรื่องแบบจัดเต็มแนว)
+  el.style.fontSize = '100px';
+  const w = el.getBoundingClientRect().width;
+  el.style.fontSize = (100 * target / w).toFixed(2) + 'px';
+}
+
+let curShot = -1, curText = -1;
+const fx = $('fx').getContext('2d');
+const gr = $('grain').getContext('2d');
+const NOISE = []; { const r2 = rng(99); for (let n = 0; n < 8; n++) { const im = gr.createImageData(640, 360);
+  for (let i = 0; i < im.data.length; i += 4) { const v = r2() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } NOISE.push(im); } }
+
+function buildShot(S) {
+  const P = $('plate');
+  // ฉากจอเอียง: ห้องมืดมีแสงจอฟุ้ง วาดเป็นพื้นของ #plate (canvas fx อยู่ชั้นบน ห้ามทาทับ)
+  P.style.background = S.k === 'screen' ? 'radial-gradient(ellipse at center, rgba(30,60,120,.55) 0%, rgba(2,4,9,1) 60%)' : 'none';
+  if (S.k === 'photo') P.innerHTML = `<img class="ph" id="ph" src="img/${S.img}" style="object-fit:${S.fit || 'cover'};filter:${GRADE[S.g]}">`;
+  else if (S.k === 'panel') P.innerHTML = `<div class="pn" id="ph" style="width:${S.w}px;height:${S.h}px;margin:${-S.h / 2}px 0 0 ${-S.w / 2}px"><img src="img/${S.img}" style="filter:${GRADE.pop}"></div>`;
+  else if (S.k === 'trio') P.innerHTML = `<div class="row" id="ph" style="margin-top:-360px">` + S.imgs.map(n => `<div style="width:480px;height:720px;box-shadow:0 30px 80px rgba(0,0,0,.8)"><img src="img/${n}" style="width:100%;height:100%;object-fit:cover;filter:${GRADE.pop}"></div>`).join('') + '</div>';
+  else if (S.k === 'badges') P.innerHTML = `<div class="row" id="ph" style="margin-top:-90px;gap:26px">` + [1, 2, 3, 4, 5, 6, 7, 8].map(i => `<img src="img/cert0${i}.png" style="width:180px;height:180px">`).join('') + '</div>';
+  else if (S.k === 'screen') P.innerHTML = `<div class="scr" id="ph" style="width:1300px;height:780px;margin:-390px 0 0 -650px"><img src="img/${S.img}"></div>`;
+  else if (S.k === 'strobe') P.innerHTML = `<img class="ph" id="ph" src="img/${STROBE[0]}">`;
+  else P.innerHTML = '';
+}
+
+function buildText(T) {
+  const X = $('txt');
+  if (!T) { X.innerHTML = ''; return; }
+  if (T.kind === 'wm') X.innerHTML = '<div class="wm"><span class="a">BRAND</span><span class="b">Product</span></div>';
+  else if (T.kind === 'card') X.innerHTML = T.l.map((s, i) => `<div class="card">${glyphs(s, Math.round(T.a * 100) + i)}</div>`).join('');
+  else if (T.kind === 'title') {
+    X.innerHTML = `<div class="t1" id="t1">${glyphs(T.l[0], 7)}</div><div class="t2" id="t2">${glyphs(T.l[1], 8)}</div>`;
+    fitWidth($('t1'), 1285); fitWidth($('t2'), 1285);
+  } else if (T.kind === 'end') {
+    X.innerHTML = '<div class="endth">ชื่อ นามสกุล</div><div class="endbig">Let\'s build with AI</div>'
+      + '<div class="endurl">example.com &nbsp;·&nbsp; shop.example.com &nbsp;·&nbsp; profile.example.com/you</div>'
+      + '<div class="bill">Your Name &nbsp; Your Job Title &nbsp; Role, Your Company &nbsp; Previous role, Company &nbsp; N published books &nbsp; N certifications<br>'
+      + 'Music &ldquo;Cinematic Symphony of Steel&rdquo; by Jimena Contreras &nbsp; Made with Claude Code</div>';
+  }
+}
+
+window.renderAt = function (t) {
+  let si = 0; while (si + 1 < SHOTS.length && SHOTS[si + 1].t <= t) si++;
+  const S = SHOTS[si], end = SHOTS[si + 1] ? SHOTS[si + 1].t : TOTAL, tau = t - S.t, k = clamp(tau / (end - S.t), 0, 1);
+  if (si !== curShot) { buildShot(S); curShot = si; }
+
+  // แฟลช + กระแทกกล้อง
+  let fl = 0, pu = 0;
+  for (const [ht, s] of HITS) if (t >= ht) { fl += s * 0.5 * Math.exp(-(t - ht) * 11); pu += s * 0.03 * Math.exp(-(t - ht) * 5); }
+  $('flash').style.opacity = Math.min(0.7, fl).toFixed(3);
+  $('cam').style.transform = `scale(${(1 + pu).toFixed(4)})`;
+
+  // ภาพพื้นหลัง
+  fx.clearRect(0, 0, W, H);
+  if (S.k === 'bokeh') drawBokeh(fx, t, S.seed);
+  else if (S.k === 'laser') drawLaser(fx, tau);
+  const ph = $('ph');
+  if (S.k === 'screen' && ph) ph.style.transform = `rotateY(${(S.side * (18 - 8 * k)).toFixed(2)}deg) rotateX(4deg) scale(${(0.94 + 0.08 * k).toFixed(4)})`;
+  if (S.k === 'photo' && ph) {
+    const sc = S.s[0] + (S.s[1] - S.s[0]) * k, x = S.x[0] + (S.x[1] - S.x[0]) * k, y = S.y[0] + (S.y[1] - S.y[0]) * k;
+    ph.style.transform = `translate(${x}%, ${y}%) scale(${sc.toFixed(4)})`;
+  }
+  if ((S.k === 'panel') && ph) ph.style.transform = `scale(${(S.s[0] + (S.s[1] - S.s[0]) * k).toFixed(4)})`;
+  if ((S.k === 'trio' || S.k === 'badges') && ph) ph.style.transform = `scale(${(1 + 0.06 * k).toFixed(4)})`;
+  if (S.k === 'strobe' && ph) {   // เปลี่ยนภาพทุก 2 เฟรม ย้อมสีสลับ
+    const n = Math.floor(tau * 12), R = rng(n * 31 + 5);
+    const src = 'img/' + STROBE[n % STROBE.length];
+    if (!ph.src.endsWith(src)) ph.src = src;
+    ph.style.objectFit = /portrait|poster|book-|cover|cert/.test(src) ? 'contain' : 'cover';
+    ph.style.filter = `${GRADE.pop} hue-rotate(${Math.round((R() - 0.5) * 120)}deg) brightness(${(0.55 + R() * 0.35).toFixed(2)})`;
+    ph.style.transform = `scale(${(1.05 + R() * 0.15).toFixed(3)})`;
+  }
+  // จุ่มดำโดยตัวหนังสือยังค้าง / ภาพหลังชื่อเรื่องค่อยมืด
+  let po = 1;
+  if (S.dip) po = 1 - ease(clamp((tau - (end - S.t - 0.6)) / 0.4, 0, 1));
+  if (S.fadeTo) po = 1 - ease(clamp((tau - S.fadeTo[0]) / (S.fadeTo[1] - S.fadeTo[0]), 0, 1));
+  $('plate').style.opacity = po.toFixed(3); $('fx').style.opacity = po.toFixed(3);
+  drawLeak(t);
+
+  // ตัวหนังสือ
+  let ti = -1; for (let i = 0; i < TEXTS.length; i++) if (t >= TEXTS[i].a && t < TEXTS[i].b) ti = i;
+  if (ti !== curText) { buildText(TEXTS[ti]); curText = ti; }
+  const X = $('txt');
+  if (ti >= 0) {
+    const T = TEXTS[ti], dt = t - T.a;
+    let o = 1;
+    if (T.kind === 'wm') o = clamp(dt / 0.25, 0, 1) * clamp((T.b - t) / 0.12, 0, 1);
+    if (T.kind === 'card' || T.kind === 'title') revealGlyphs(X, dt, T.kind === 'title' ? 0.1 : 0.14);
+    if (T.kind === 'title') {
+      if (dt < 0.35) o = 0.6 + 0.4 * Math.abs(Math.sin(dt * 90));   // กะพริบตอนเข้า
+      o *= clamp((T.b - t) / 0.35, 0, 1);
+      X.style.transform = `scale(${(1.04 - 0.04 * ease(clamp(dt / 4, 0, 1))).toFixed(4)})`;
+    } else X.style.transform = 'none';
+    if (T.kind === 'end') o = clamp(dt / 0.5, 0, 1) * clamp((T.b - 0.15 - t) / 0.7, 0, 1);
+    X.style.opacity = o.toFixed(3);
+  } else X.style.opacity = 0;
+
+  $('black').style.opacity = 0;
+  gr.putImageData(NOISE[Math.floor(t * 24) % 8], 0, 0);
+};
+
+window.ready = async function () {
+  await document.fonts.ready;
+  for (const f of ['900 40px Archivo', '700 40px Archivo', '300 20px Antonio', '600 40px Kanit']) await document.fonts.load(f, 'AKกข');
+  // พื้นผิวขูดขีดของบรรทัดแดง: มาสก์ทึบที่เจาะรูเล็ก ๆ แบบสุ่ม
+  const c = document.createElement('canvas'); c.width = 1400; c.height = 220; const g = c.getContext('2d'), R = rng(77);
+  g.fillStyle = '#000'; g.fillRect(0, 0, 1400, 220); g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 2600; i++) { g.globalAlpha = 0.35 + R() * 0.65; g.beginPath(); g.ellipse(R() * 1400, R() * 220, 0.6 + R() ** 3 * 5, 0.5 + R() ** 3 * 3, R() * 3, 0, TAU); g.fill(); }
+  for (let i = 0; i < 60; i++) { g.globalAlpha = 0.5; g.lineWidth = 0.6 + R(); g.beginPath(); const x = R() * 1400, y = R() * 220; g.moveTo(x, y); g.lineTo(x + (R() - 0.5) * 60, y + (R() - 0.5) * 14); g.stroke(); }
+  document.documentElement.style.setProperty('--grunge', `url(${c.toDataURL()})`);
+  const srcs = [...new Set(SHOTS.flatMap(s => [s.img, ...(s.imgs || [])]).filter(Boolean).concat(STROBE, [1, 2, 3, 4, 5, 6, 7, 8].map(i => `cert0${i}.png`)))];
+  const bad = [];
+  await Promise.all(srcs.map(s => { const im = new Image(); im.src = 'img/' + s; return im.decode().catch(() => bad.push(s)); }));
+  return { fonts: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight + ' ' + f.stretch).join(', '), images: srcs.length, missing: bad };
+};
+</script>
+</body>
+</html>

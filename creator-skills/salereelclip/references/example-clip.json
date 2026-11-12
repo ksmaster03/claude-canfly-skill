@@ -1,0 +1,64 @@
+{
+  "head": 0.4, "tail": 1.0,
+  "bg": { "type": "cutout", "src": "img/presenter.png" },
+  "show": [["เคพีไอ", "KPI"], ["คิวท่า", "DockQ"]],
+  "lines": [
+    { "id": 1, "scene": { "frame": "split", "pre": "ถ้าคลังของคุณ", "kw": "รถยังต่อคิวยาว", "post": "หน้าท่า*ทุกเช้า*",
+        "panel": { "type": "proof", "items": [
+          { "img": "img/01-before-paper.jpg", "chip": "จดมือ", "play": false },
+          { "img": "img/03-before-driver-wait.jpg", "chip": "รอคิว", "play": false },
+          { "img": "img/09-before-double-booking.jpg", "chip": "จองชน", "play": false } ] } },
+      "say": "ถ้าคลังสินค้าของคุณ|ยังมีรถต่อคิวยาว|หน้าท่าทุกเช้า" },
+
+    { "id": 2, "scene": { "frame": "split", "num": "5", "numKeep": true, "kw": "สิ่งที่ต้องมี",
+        "panel": { "type": "diagram", "img": "img/02-after-dashboard.jpg",
+          "labels": ["จองล่วงหน้า", "คิวบนมือถือ", "วิทยุในแอป", "จอเดียวจบ", "รายงานอัตโนมัติ"] } },
+      "say": "~มีห้าอย่าง|ที่ระบบจองคิวท่า|ต้องมี|ถึงจะจบปัญหานี้" },
+
+    { "id": 3, "scene": { "num": "1",
+        "panel": { "type": "shot", "title": "ผู้ขนส่งเลือกเวลาเอง", "img": "img/02-after-dashboard.jpg", "box": [0.04, 0.2, 0.33, 0.58] } },
+      "say": "~หนึ่ง|#จองล่วงหน้า|ผู้ขนส่งเลือกช่วงเวลาเอง|ไม่ต้องโทรถามทั้งวัน" },
+
+    { "id": 4, "scene": { "num": "2",
+        "panel": { "type": "shot", "title": "คนขับรู้เวลาเข้าท่า", "img": "img/04-after-driver-mobile.jpg", "box": [0.74, 0.04, 0.24, 0.9] } },
+      "say": "~สอง|#คิวบนมือถือ|คนขับรู้เวลาเข้าท่า|ไม่ต้องนั่งรอหน้าประตู" },
+
+    { "id": 5, "scene": { "frame": "wide" },
+      "say": "ส่วนข้อต่อไป|คือสิ่งที่หลายคลัง|*มองข้าม*" },
+
+    { "id": 6, "scene": { "num": "3",
+        "panel": { "type": "compare", "title": "เลิกแจกวิทยุ",
+          "left": { "img": "img/05-before-radio.jpg", "label": "วิทยุ" },
+          "right": { "img": "img/06-after-ptt.jpg", "label": "กดพูดในแอป" } } },
+      "say": "~สาม|#วิทยุในแอป|กดพูดผ่านมือถือ|คุยกันชัดทุกคำ" },
+
+    { "id": 7, "scene": { "num": "4",
+        "panel": { "type": "compare", "title": "เห็นทุกท่าในจอเดียว",
+          "left": { "img": "img/07-before-no-data.jpg", "label": "ไม่มีข้อมูล" },
+          "right": { "img": "img/08-after-dashboard.jpg", "label": "แดชบอร์ด" } } },
+      "say": "~สี่|#จอเดียวจบ|แอดมินเห็นสถานะทุกท่า|แบบเรียลไทม์" },
+
+    { "id": 8, "scene": { "num": "5",
+        "panel": { "type": "mindmap", "title": "สรุปให้เองทุกวัน", "center": "รายงาน",
+          "items": ["แดชบอร์ด KPI", "คิวลานจอด", "ค่าปรับรถจอดเกิน", "บันทึกเหตุการณ์"] } },
+      "say": "~ห้า|#รายงานอัตโนมัติ|ดูเคพีไอได้ทันที|และคิดค่าปรับรถจอดเกินให้เอง" },
+
+    { "id": 9, "scene": { "frame": "wide", "kwColor": "red" },
+      "say": "ถ้ายังจัดคิวด้วยกระดาษกับไลน์|คุณไม่ได้แค่เสียเวลา|แต่กำลัง|#เสียลูกค้า" },
+
+    { "id": 10, "scene": { "frame": "offer", "panelH": 900,
+        "panel": { "type": "grid", "title": "ครบในระบบเดียว", "cols": [
+          { "head": "เว็บแอดมิน", "img": "img/02-after-dashboard.jpg", "pos": "35% 50%" },
+          { "head": "แอปคนขับ", "img": "img/04-after-driver-mobile.jpg", "pos": "86% 50%" },
+          { "head": "วิทยุในแอป", "img": "img/06-after-ptt.jpg", "pos": "50% 50%" } ] } },
+      "say": "ทั้งหมดนี้อยู่ใน|#คิวท่า|เว็บแอดมิน แอปคนขับ|และวิทยุในตัว" },
+
+    { "id": 11, "scene": { "frame": "card",
+        "card": { "brand": "ชื่อแบรนด์ของคุณ", "logo": "img/logo.png", "title": ["DockQ", "ระบบจองคิวท่า"], "accent": 1,
+          "photo": "img/presenter.png", "bonusTitle": "ครบทุกฝ่าย",
+          "bonuses": [ { "img": "img/02-after-dashboard.jpg", "label": "เว็บ/แอดมิน" }, { "img": "img/04-after-driver-mobile.jpg", "label": "แอป/คนขับ" },
+                       { "img": "img/06-after-ptt.jpg", "label": "วิทยุ/ในแอป" }, { "img": "img/08-after-dashboard.jpg", "label": "แดชบอร์ด/KPI" } ],
+          "under": ["อยากเห็นระบบจริง"], "cta": "คอมเมนต์คำว่า *เดโม*" } },
+      "say": "อยากเห็นระบบจริง|คอมเมนต์คำว่าเดโม|ทีมงานส่งรายละเอียดให้ทางแชต", "hold": 0.6 }
+  ]
+}

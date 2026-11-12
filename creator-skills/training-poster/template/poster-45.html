@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Poster 4:5</title>
+<style>
+  @font-face { font-family: P; src: url("fonts/Prompt-Regular.ttf"); font-weight: 400; }
+  @font-face { font-family: P; src: url("fonts/Prompt-Medium.ttf"); font-weight: 500; }
+  @font-face { font-family: P; src: url("fonts/Prompt-SemiBold.ttf"); font-weight: 600; }
+  @font-face { font-family: P; src: url("fonts/Prompt-Bold.ttf"); font-weight: 700; }
+  @font-face { font-family: P; src: url("fonts/Prompt-ExtraBold.ttf"); font-weight: 800; }
+  :root {
+    --W: 1080px; --H: 1350px; --pad: 56px;
+    --line: rgba(120,170,255,.35); --red: #e3262e; --red2: #b3121b; --blue: #59b4ff; --soft: #d9e6ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: var(--W); height: var(--H); background: #06122b; }
+  body { font-family: P, "Leelawadee UI", sans-serif; color: #fff; overflow: hidden; position: relative; }
+  .bg { position: absolute; left: -135px; top: 0; width: 1350px; height: 1350px; }
+  .shade { position: absolute; inset: 0; background:
+      linear-gradient(180deg, rgba(5,13,34,.55) 0%, rgba(5,13,34,0) 30%, rgba(5,13,34,0) 52%, rgba(4,11,30,.92) 68%, rgba(4,11,30,.97) 100%),
+      linear-gradient(90deg, rgba(5,13,34,.7) 0%, rgba(5,13,34,0) 55%); }
+
+  /* คนสองคนยืนเคียงกัน ไม่ทับกัน */
+  .person { position: absolute; }
+  .p-sponsor { left: 630px; top: 262px; width: 452px;
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 84%), linear-gradient(90deg, transparent 1%, #000 9%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+    filter: drop-shadow(0 0 28px rgba(89,180,255,.45)); }
+  .p-speaker1 { left: 16px; top: 523px; width: 307px;
+    -webkit-mask-image: linear-gradient(180deg, #000 74%, transparent 100%), linear-gradient(90deg, transparent 0, #000 12%, #000 90%, transparent 100%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+    filter: drop-shadow(0 0 24px rgba(89,180,255,.35)); }
+
+  .p-speaker2 { left: 331px; top: 548px; width: 282px;
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+    filter: drop-shadow(0 0 24px rgba(89,180,255,.35)); }
+
+  /* แถบบน */
+  .top { position: absolute; top: 40px; left: var(--pad); right: var(--pad); display: flex; align-items: center; gap: 28px; }
+  .top .tt { height: 76px; }
+  .top .x { font-family: Arial, sans-serif; font-size: 40px; color: var(--soft); line-height: 1; }
+  .top .badge { height: 100px; }
+  .top .st b { display: block; font-size: 32px; font-weight: 600; line-height: 1.3; }
+  .top .st span { display: block; font-size: 18px; font-weight: 500; color: var(--soft); letter-spacing: .12em; }
+
+  /* หัวเรื่อง */
+  .head { position: absolute; top: 168px; left: var(--pad); right: var(--pad); }
+  .ribbon { display: inline-block; background: linear-gradient(90deg, var(--red2), var(--red)); padding: 4px 30px 6px 20px; font-size: 32px; font-weight: 600; line-height: 1.35; clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%); }
+  .h1 { margin-top: 6px; font-weight: 800; line-height: 1.1; transform: skewX(-7deg); transform-origin: left bottom; white-space: nowrap; }
+  .h1 .l1 { display: block; font-size: 88px; color: #f4f7ff; text-shadow: 0 4px 18px rgba(0,0,0,.5); }
+  .h1 .l2 { display: block; font-size: 88px; color: var(--red); text-shadow: 0 4px 18px rgba(0,0,0,.55); }
+  .h1 .ai { color: #fff; font-size: 104px; margin-left: 20px; text-shadow: 0 0 14px var(--blue), 0 0 34px rgba(89,180,255,.8); }
+  .sub { margin-top: 10px; font-size: 24px; font-weight: 500; line-height: 1.45; color: var(--soft); }
+
+  /* การ์ดวิทยากร */
+  .spk { position: absolute; top: 760px; background: rgba(6,18,46,.9); border: 1px solid var(--line); border-radius: 14px; padding: 12px 22px 14px; }
+  .spk .tag { font-size: 17px; font-weight: 500; color: var(--blue); line-height: 1.4; }
+  .spk .nm { font-size: 26px; font-weight: 700; line-height: 1.35; white-space: nowrap; }
+  .spk .rl { font-size: 19px; color: var(--soft); line-height: 1.45; }
+  .spk1 { right: var(--pad); }
+  .spk2 { left: var(--pad); width: 268px; min-height: 130px; padding: 12px 18px 14px; }
+  .spk3 { left: 336px; width: 268px; min-height: 130px; padding: 12px 18px 14px; }
+  .spk2 .nm, .spk3 .nm { font-size: 24px; }
+  .spk2 .rl, .spk3 .rl { font-size: 17px; line-height: 1.4; }
+
+  /* หัวข้อการอบรม 2 คอลัมน์ */
+  .topics { position: absolute; top: 912px; left: var(--pad); right: var(--pad); background: rgba(8,24,60,.78); border: 1px solid var(--line); border-radius: 16px; padding: 14px 24px 10px; }
+  .topics h3 { font-size: 27px; font-weight: 700; line-height: 1.3; margin-bottom: 6px; }
+  .topics ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+  .topics li { display: flex; align-items: center; gap: 12px; padding: 5px 0; font-size: 20px; font-weight: 500; line-height: 1.35; }
+  .ic { flex: 0 0 40px; height: 40px; border-radius: 9px; border: 1px solid var(--line); display: grid; place-items: center; background: rgba(89,180,255,.08); }
+  .ic svg { width: 22px; height: 22px; stroke: #cfe3ff; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* แถบข้อมูล */
+  .info { position: absolute; left: var(--pad); right: var(--pad); top: 1172px; display: grid; grid-template-columns: 1.3fr 1fr 1fr; }
+  .info .c { display: flex; gap: 14px; align-items: flex-start; padding: 0 18px; border-left: 1px solid rgba(120,170,255,.25); }
+  .info .c:first-child { border-left: 0; padding-left: 0; }
+  .info .dot { flex: 0 0 54px; height: 54px; border-radius: 50%; background: linear-gradient(145deg, var(--red), var(--red2)); display: grid; place-items: center; }
+  .info .dot svg { width: 27px; height: 27px; stroke: #fff; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .info .k { font-size: 18px; color: var(--soft); font-weight: 500; line-height: 1.4; }
+  .info .v { font-size: 22px; font-weight: 600; line-height: 1.38; white-space: nowrap; }
+
+  /* สโลแกน + ติดต่อ */
+  .slogan { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; background: linear-gradient(90deg, #0a1f4a, #0d2c66 60%, #0a1f4a); border-top: 2px solid var(--red); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--pad); }
+  .slogan .s { display: flex; align-items: center; gap: 14px; }
+  .slogan b { font-size: 30px; font-weight: 800; transform: skewX(-7deg); line-height: 1.3; }
+  .slogan i { width: 3px; height: 30px; background: var(--red); transform: skewX(-15deg); }
+  .slogan span { font-size: 21px; font-weight: 500; color: var(--soft); line-height: 1.3; }
+  .slogan .fbw { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600; }
+  .slogan .fb { width: 28px; height: 28px; border-radius: 6px; background: #1877f2; display: grid; place-items: center; font: 700 19px Arial, sans-serif; }
+</style>
+</head>
+<body>
+  <img class="bg" src="bg.png" alt="">
+  <div class="shade"></div>
+  <img class="person p-speaker1" src="p-speaker1.png" alt="">
+  <img class="person p-speaker2" src="p-speaker2.png" alt="">
+  <img class="person p-sponsor" src="p-sponsor.png" alt="">
+
+  <div class="top">
+    <img class="tt" src="host-logo.png" alt="โลโก้ผู้จัด">
+    <div class="x">&times;</div>
+    <img class="badge" src="badge.png" alt="">
+    <div class="st"><b>ชื่อหน่วยงานเจ้าภาพ</b><span>HOST ORGANIZATION</span></div>
+  </div>
+
+  <div class="head">
+    <div class="ribbon">โครงการอบรม</div>
+    <div class="h1"><span class="l1">ชื่อหลักสูตร</span><span class="l2">บรรทัดที่สอง<span class="ai">AI</span></span></div>
+    <div class="sub">คำโปรยหลักสูตรบรรทัดแรก<br>คำโปรยหลักสูตรบรรทัดที่สอง</div>
+  </div>
+
+  <div class="spk spk1">
+    <div class="tag">สนับสนุนโดย</div>
+    <div class="nm">ชื่อ-ยศผู้สนับสนุน</div>
+    <div class="rl">ตำแหน่งผู้สนับสนุน</div>
+  </div>
+  <div class="spk spk2">
+    <div class="tag">วิทยากร</div>
+    <div class="nm">ชื่อวิทยากรคนที่ 1</div>
+    <div class="rl">ตำแหน่งวิทยากร<br>บรรทัดที่สอง</div>
+  </div>
+  <div class="spk spk3">
+    <div class="tag">วิทยากร</div>
+    <div class="nm">ชื่อวิทยากรคนที่ 2</div>
+    <div class="rl">ตำแหน่งวิทยากร</div>
+  </div>
+
+  <div class="topics">
+    <h3>หัวข้อการอบรม</h3>
+    <ul>
+      <li><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span>หัวข้อที่ 1</li>
+      <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/></svg></span>หัวข้อที่ 2</li>
+      <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg></span>หัวข้อที่ 3</li>
+      <li><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><span>หัวข้อที่ 4<br>ต่อบรรทัดที่สอง</span></li>
+      <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span>หัวข้อที่ 5<br>ต่อบรรทัดที่สอง</span></li>
+    </ul>
+  </div>
+
+  <div class="info">
+    <div class="c">
+      <span class="dot"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+      <div><div class="k">วันและเวลา</div><div class="v">วันที่ เดือน ปี<br>00.00 - 00.00 น.</div></div>
+    </div>
+    <div class="c">
+      <span class="dot"><svg viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+      <div><div class="k">สถานที่</div><div class="v">สถานที่จัดอบรม<br>(บรรทัดที่สอง)</div></div>
+    </div>
+    <div class="c">
+      <span class="dot"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.8.3 5 2.6 5 5.8"/></svg></span>
+      <div><div class="k">กลุ่มเป้าหมาย</div><div class="v">กลุ่มเป้าหมาย<br>(บรรทัดที่สอง)</div></div>
+    </div>
+  </div>
+
+  <div class="slogan">
+    <div class="s"><b>สโลแกนบรรทัดแรก</b><i></i><span>สโลแกนบรรทัดที่สอง</span></div>
+    <div class="fbw"><span class="fb">f</span>ชื่อเพจ</div>
+  </div>
+</body>
+</html>

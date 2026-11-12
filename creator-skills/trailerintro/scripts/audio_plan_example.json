@@ -1,0 +1,17 @@
+{
+  "sr": 48000,
+  "total": 40.0,
+  "music": [
+    { "src": "music48.wav", "from": 0.0, "to": 27.985, "at": 2.0, "fade_in": 0.05, "fade_out": 0.02 },
+    { "src": "music48.wav", "from": 45.985, "to": 55.6, "at": 30.485, "fade_in": 0.01, "fade_out": 3.0, "gain_db": -1 }
+  ],
+  "booms": [
+    { "at": 30.5, "dur": 4.5, "gain_db": -2, "seed": 3 }
+  ],
+  "sfx": [
+    { "src": "$MEDIA/sfx/whoosh_01.wav", "at": 9.2, "gain_db": -16 },
+    { "src": "$MEDIA/sfx/whoosh_02.wav", "at": 15.0, "gain_db": -16 },
+    { "src": "$MEDIA/sfx/whoosh_03.wav", "at": 23.6, "gain_db": -14 }
+  ],
+  "master": { "lufs": -14, "tp": -1.5, "lra": 13 }
+}

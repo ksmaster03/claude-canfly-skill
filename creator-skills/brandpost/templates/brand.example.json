@@ -1,0 +1,34 @@
+{
+  "_note": "แบรนด์สมมติ คาเฟ่ลมหนาว ทุกช่องว่าง = ผู้ใช้ยังไม่ได้บอก ห้ามเติมเอง",
+  "name": "คาเฟ่ลมหนาว",
+  "slug": "cafe-lomnao",
+  "industry": "อาหารและเครื่องดื่ม",
+  "subindustry": "คาเฟ่-ร้านกาแฟ",
+  "sells": "product",
+  "goals": ["awareness", "sales", "community"],
+  "price_range": "",
+  "platforms": ["facebook", "instagram"],
+  "usp": "กาแฟจากเมล็ดดอยช้างที่ร้านคั่วเอง และเค้กอบใหม่ทุกเช้า บรรยากาศอบอุ่นเหมือนลมหนาวต้นฤดู",
+  "audience": {
+    "who": "คนทำงานและนักศึกษาในย่านใกล้ร้านที่อยากได้กาแฟดีและมุมนั่งสงบ ๆ",
+    "needs": "กาแฟรสชาติดีที่ไว้ใจได้ทุกวัน ที่นั่งทำงานหรืออ่านหนังสือได้นาน ของหวานสดไม่ค้างคืน"
+  },
+  "voice": ["thai", "friendly_casual"],
+  "logo": null,
+  "presenters": [],
+  "products": [
+    { "sku": "coffee", "name": "กาแฟจากเมล็ดดอยช้างคั่วเอง", "price": "", "detail": "ได้รสชาติกาแฟจากเมล็ดที่ร้านคั่วเอง", "order_channel": "", "photos": [], "guessed": true },
+    { "sku": "cake", "name": "เค้กโฮมเมดอบใหม่", "price": "", "detail": "เค้กอบสดใหม่ทุกเช้า", "order_channel": "", "photos": [], "guessed": true }
+  ],
+  "order_channels": [],
+  "visual": {
+    "style": "Warm Minmal",
+    "colors": { "primary": "#7a4b2a", "secondary": "#2b1d14", "accent": "#f2c14e" },
+    "font": "Kanit",
+    "custom": "morning light, steam rising from cups, linen and wood textures"
+  },
+  "facts_locked": [
+    "เมล็ดกาแฟจากดอยช้าง ร้านคั่วเอง",
+    "เค้กอบใหม่ทุกเช้า"
+  ]
+}

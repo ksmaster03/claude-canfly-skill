@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><body><script type="module">
+// 20/10/2026 จับท่าทางคนในภาพด้วย MediaPipe Pose (ไลบรารีและโมเดลในเครื่อง) สำหรับวาดเส้นโครงร่างในคลิป
+import { FilesetResolver, PoseLandmarker } from './vision_bundle.mjs';
+window.run = async (names) => {
+  const fs = await FilesetResolver.forVisionTasks('./wasm');
+  const pl = await PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: './pose_landmarker_full.task', delegate: 'CPU' }, runningMode: 'IMAGE', numPoses: 6, minPoseDetectionConfidence: 0.3, minPosePresenceConfidence: 0.3 });
+  const out = {};
+  for (const n of names) {
+    const im = new Image(); im.src = n; await im.decode();
+    const r = pl.detect(im);
+    out[n] = r.landmarks.map(p => p.map(q => [+q.x.toFixed(4), +q.y.toFixed(4), +(q.visibility ?? 0).toFixed(2)]));
+  }
+  return out;
+};
+window.ok = true;
+</script></body>

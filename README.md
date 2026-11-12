@@ -5,7 +5,7 @@
 <h1 align="center">Claude Canfly Skills</h1>
 
 <p align="center">
-  คลังสกิลสำหรับ Claude และ Claude Code รวม <b>256 สกิลพร้อมใช้งาน</b><br>
+  คลังสกิลสำหรับ Claude และ Claude Code รวม <b>312 สกิลพร้อมใช้งาน</b><br>
   จัดระเบียบเป็นโครงสร้างมาตรฐาน พร้อมติดตั้งเป็น <code>/slash command</code> ได้ทันที
 </p>
 
@@ -43,8 +43,8 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 | D   | `jobsdb-ai-skills/` | สกิลที่อธิบายว่างานใดบ้างที่ AI สามารถช่วยทำแทนได้ อ้างอิงจากตำแหน่งงานยอดนิยมบน JobsDB พร้อมระบุส่วนที่ยังต้องใช้มนุษย์               | 19    |
 | E   | `people-skills/`    | สกิลสำหรับเข้าใจและทำงานร่วมกับคนแต่ละประเภท ครอบคลุม MBTI 16 แบบ, DISC 4 แบบ, Enneagram 9 แบบ, CliftonStrengths 34 แบบ และราศี 12 แบบ | 75    |
 | F   | `sdlc-skills/`      | พัฒนาซอฟต์แวร์ครบวงจรแบบ SDLC + Agile — ตัวขับเคลื่อน `/sdlc-agile` 1 ตัว + sub-skill รายเฟส (requirement, FR/NFR, business logic, design, auth/SoD, threat model, dev, test, regression, security test, pen test, deploy, monitoring) | 16    |
-| G   | `craft-skills/`     | **สกิลจากงานจริง** ที่ใช้กับ Claude Code ทุกวัน — ดีบั๊ก รีวิวโค้ด deploy AWS ออดิตความปลอดภัย ตัดต่อวิดีโอ ทำรีล มาสเตอร์เสียง และปั้น ebook (ไม่ได้เขียนจากเทมเพลต แต่ตกผลึกจากงานที่ทำเสร็จจริง) | 23    |
-| H   | `creator-skills/`   | **สกิลสายครีเอเตอร์จากงานจริง** สำหรับ Claude Code: ศึกษาคลิปคนอื่น เขียนบท พากย์เสียง ทำคลิปแปลเพลง คลิปอธิบาย ปกคลิป โพสต์ตั้งเวลา และขอ ISBN ให้ ebook | 44    |
+| G   | `craft-skills/`     | **สกิลจากงานจริง** ที่ใช้กับ Claude Code ทุกวัน — ดีบั๊ก รีวิวโค้ด deploy AWS ออดิตความปลอดภัย ตัดต่อวิดีโอ ทำรีล มาสเตอร์เสียง และปั้น ebook (ไม่ได้เขียนจากเทมเพลต แต่ตกผลึกจากงานที่ทำเสร็จจริง) | 25    |
+| H   | `creator-skills/`   | **สกิลสายครีเอเตอร์จากงานจริง** สำหรับ Claude Code: ศึกษาคลิปคนอื่น เขียนบท พากย์เสียง ทำคลิปแปลเพลง คลิปอธิบาย ปกคลิป โพสต์ตั้งเวลา โพสต์แบรนด์ ใบเสนอราคา และขอ ISBN ให้ ebook | 54    |
 | —   | `standard/`         | สกิลชุด A–F ในรูปแบบมาตรฐาน `<slug>/SKILL.md` พร้อมติดตั้งใช้งาน                                                                        | 233   |
 
 ---
@@ -110,7 +110,7 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 | --- | --- |
 | วิธีทำงาน | `debug-mantra` `scrutinize` `post-mortem` `management-talk` `teamagent` `recall` `handoff` |
 | สร้างโค้ด | `prisma-migrate-safe` `nest-vertical-slice` `rn-screen` `i18n-sync` |
-| คลาวด์/ความปลอดภัย | `aws-deploy` `joey` |
+| คลาวด์/ความปลอดภัย | `aws-deploy` `joey` `customer-bastion` `ec2-cost-cut` |
 | วิดีโอ/คอนเทนต์ | `vidcraft` `vdocut` `vdostory` `vdomindset` `reel-factory` `reelcut` `conveyor-loop` |
 | เสียง/ภาษา | `tinglish` `audio-master` |
 | หนังสือ | `ebook` |
@@ -134,11 +134,11 @@ Claude Canfly Skills คือคลังสกิลภาษาไทยแ�
 
 | กลุ่ม | สกิล |
 | --- | --- |
-| คลิปสั้น | `explainreel` `msinterview` `newsreel` `techaireel` `darkui-repo-reel` `repo-swap-reel` `mv-reel` `musicmv` `musicvideo` `promotioncut` `stills-to-promo-clip` `product-review` `fightfilm` `song-release` `clipcover` `reel-edit-layers` `talkinghead-edit-skills` `reelpost` `page-study` |
+| คลิปสั้น | `explainreel` `msinterview` `newsreel` `techaireel` `darkui-repo-reel` `repo-swap-reel` `mv-reel` `musicmv` `musicvideo` `promotioncut` `stills-to-promo-clip` `product-review` `fightfilm` `song-release` `clipcover` `reel-edit-layers` `talkinghead-edit-skills` `reelpost` `page-study` `salereelclip` `deepdiveclip` `trailerintro` `video-text-swap` |
 | เสียง/เพลง | `lumina-script` `sunobridge` |
-| ภาพ/สไลด์/เอกสาร | `cartoonflow` `html-deck` `prom-design` `human-docx` `vibe-ui-sources` `ui-measure-audit` |
-| หนังสือ/ธุรกิจ | `nlt-isbn` `fastwork-listing` `craft-boq` `stockanalysis` `azure-price-lookup` `excel-com-recalc` |
-| เครื่องมือ/ระบบ | `panya-memory` `panya-skills` `panya-sync` `repo-readme` `oss-swap-tools` `blender-mcp-setup` `windows-autostart` `windows-update-restart-fix` `progress-bar` |
+| ภาพ/สไลด์/เอกสาร | `cartoonflow` `html-deck` `prom-design` `human-docx` `vibe-ui-sources` `ui-measure-audit` `brandpost` `training-poster` `pptx-embed-video` `port-21st-component` |
+| หนังสือ/ธุรกิจ | `nlt-isbn` `fastwork-listing` `craft-boq` `stockanalysis` `azure-price-lookup` `excel-com-recalc` `peak-quotation` `rd-vat-check` |
+| เครื่องมือ/ระบบ | `panya-memory` `panya-skills` `panya-sync` `repo-readme` `oss-swap-tools` `blender-mcp-setup` `windows-autostart` `windows-update-restart-fix` `progress-bar` `disk-archive` `stage-fps-probe` |
 
 รายละเอียดและตัวแปร path ที่ต้องตั้งเอง อยู่ใน [`creator-skills/README.md`](creator-skills/README.md)
 
@@ -174,7 +174,7 @@ Copy-Item "standard\blog-post" "$env:USERPROFILE\.claude\skills\" -Recurse -Forc
 
 ## เครื่องมือดูแลคลัง (Meta skills)
 
-นอกจากสกิลเนื้อหา 256 ตัว มีเครื่องมือ 2 ตัวที่ทำให้คลังใช้ง่ายและเติบโตเอง:
+นอกจากสกิลเนื้อหา 312 ตัว มีเครื่องมือ 2 ตัวที่ทำให้คลังใช้ง่ายและเติบโตเอง:
 
 ### /skill-router — เลือกสกิลอัตโนมัติจากประโยคสนทนา
 ไม่ต้องจำชื่อสกิลทั้งหมด แค่พิมพ์งานแบบธรรมชาติ เช่น "ช่วยเขียนบทความเรื่อง..." หรือ "ร่างสัญญาจ้างให้หน่อย"

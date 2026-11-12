@@ -1,0 +1,89 @@
+{
+  "_note": "ชุดสไตล์ภาพ th = คำอธิบายบนหน้าจอ prompt = บล็อกภาษาอังกฤษที่ scripts/prompt.py ต่อเข้าพรอมต์ภาพ เขียนเองใหม่ทั้งหมด",
+  "post": {
+    "Warm Minmal": {
+      "th": "ให้ความรู้สึกอบอุ่น สงบ พรีเมียม มินิมอล",
+      "prompt": "warm minimal premium aesthetic, soft natural window light, beige cream and warm wood tones, clean uncluttered composition with generous negative space, calm and cozy mood, subtle soft shadows"
+    },
+    "Premium Modern": {
+      "th": "ให้ความรู้สึกสมัย เรียบ ๆ แบบพรีเมียม",
+      "prompt": "premium modern advertising look, sleek clean surfaces, neutral palette with one confident accent color, crisp studio lighting, refined geometric composition, high-end editorial product photography"
+    },
+    "Vibrant Premium": {
+      "th": "ภาพโฆษณาแบบ premium ที่เน้นความสนุกในการสื่อสาร",
+      "prompt": "vibrant premium advertising photo, bold saturated brand colors, playful dynamic composition, glossy highlights, energetic but polished commercial look, fun props that relate to the product"
+    },
+    "Maximalist Pop": {
+      "th": "ใช้โทนสีจัด วาง Text ขนาดใหญ่ และ graphic elements จำนวนมาก",
+      "prompt": "maximalist pop-art advertising design, loud contrasting color blocks, many decorative graphic shapes, stickers, halftone dots, squiggles and stars around the subject, high energy layout"
+    },
+    "Product Snapshot": {
+      "th": "เน้นภาพถ่ายที่มีความเป็นธรรมชาติ ให้ความรู้สึกอบอุ่นและเป็นกันเอง",
+      "prompt": "authentic natural product snapshot as if taken by the shop owner, real everyday setting, warm friendly daylight, slightly casual framing, true-to-life colors, no heavy retouching"
+    },
+    "Sunny Lifestyle": {
+      "th": "ภาพโฆษณา lifestyle ระดับพรีเมียม ใช้สีสันที่สดใส ให้ความรู้สึกสนุกสนาน",
+      "prompt": "premium sunny lifestyle advertising photo, bright golden sunlight, cheerful fresh colors, people-free or candid lifestyle context, joyful summer mood, airy and optimistic"
+    },
+    "Corporate Premium": {
+      "th": "เน้นภาพถ่ายและการจัดวางสไตล์องค์กรขนาดใหญ่ ให้ความรู้สึกน่าเชื่อถือ",
+      "prompt": "large-enterprise corporate premium visual, polished architectural or office environment, deep navy and silver tones, precise grid composition, trustworthy and authoritative"
+    },
+    "Corporate Bold": {
+      "th": "เน้นภาพถ่ายและการจัดวางที่ดูเข้าถึงง่าย แต่ยังให้ความรู้สึกน่าเชื่อถือ",
+      "prompt": "approachable bold corporate visual, confident brand-color blocks, friendly professional photography, strong clear shapes, modern business look that still feels credible"
+    },
+    "Architectural Real Estate": {
+      "th": "เน้นภาพถ่ายแนวอสังหาฯ และการจัดวางที่ดูเป็นทางการ น่าเชื่อถือ",
+      "prompt": "architectural real estate photography, wide-angle interior or exterior, straight verticals, golden-hour or bright even daylight, luxurious materials, formal and aspirational"
+    },
+    "Corporate Industrial": {
+      "th": "เน้นสื่อสารความเป็นองค์กรที่เป็นทางการ ให้ความรู้สึกน่าเชื่อถือ",
+      "prompt": "formal corporate industrial visual, factory, warehouse or engineering setting, steel blue and safety accent tones, clean safety-compliant scene, dependable and precise"
+    },
+    "Futuristic Tech": {
+      "th": "เน้นความเป็นเทคโนโลยี และองค์ประกอบแบบ Abstract 3D",
+      "prompt": "futuristic technology visual, abstract 3D shapes, glowing gradients, glass and holographic elements, dark background with neon brand-color light, sleek sci-fi product render"
+    },
+    "Bold Flat illustrations": {
+      "th": "ภาพสไตล์การ์ตูน illustration สีสดใส เน้น text ขนาดใหญ่",
+      "prompt": "bold flat vector illustration, bright solid colors, thick clean shapes, simple cartoon characters and objects, no gradients, poster-like clarity"
+    },
+    "Playful Collage": {
+      "th": "สไตล์ภาพตัดแปะ ที่มีความสนุกสนาน",
+      "prompt": "playful paper-cut collage style, cut-out photo elements with white sticker borders, torn paper textures, doodles and hand-drawn arrows, fun scrapbook composition"
+    },
+    "Playful": {
+      "th": "เรโทร สนุกสนาน",
+      "prompt": "playful retro style, 70s-80s inspired palette, rounded groovy shapes, grain texture, nostalgic fun mood"
+    }
+  },
+  "enhance": {
+    "White Background": { "th": "พื้นหลังขาว", "prompt": "place the exact same product on a pure seamless white background, soft even studio light, gentle contact shadow, e-commerce catalog style" },
+    "Gradient Background": { "th": "พื้นหลังไล่แสง โทนนุ่มนวล", "prompt": "place the exact same product on a soft smooth gradient backdrop in gentle pastel tones, diffused studio light" },
+    "Dark Spotlight": { "th": "ดุดัน พรีเมียม", "prompt": "place the exact same product on a dark moody backdrop with a single dramatic spotlight and rim light, premium and bold" },
+    "Floating": { "th": "สินค้าลอยในอากาศ", "prompt": "the exact same product floating mid-air at a slight angle with a soft shadow below, clean backdrop, dynamic levitation product shot" },
+    "Water Reflection": { "th": "เงาสินค้าสะท้อนน้ำ", "prompt": "the exact same product standing on a calm water surface with a clear mirror reflection and gentle ripples, fresh clean mood" },
+    "Podium": { "th": "สินค้าวางบนแท่นวาง", "prompt": "the exact same product displayed on a minimal geometric podium, soft studio light, complementary pastel set" },
+    "Natural Daylight": { "th": "แสงธรรมชาติ", "prompt": "the exact same product in soft natural window daylight on a simple tabletop, true colors, gentle shadows" },
+    "Warm": { "th": "อบอุ่น พร้อมพร็อพประกอบฉาก", "prompt": "the exact same product in a warm cozy scene with tasteful related props, warm wood and linen textures, soft warm light" },
+    "Sunny": { "th": "สีสันสดใส พร้อมพร็อพประกอบฉาก", "prompt": "the exact same product in a bright sunny colorful scene with cheerful related props and crisp hard sunlight shadows" },
+    "Retro": { "th": "อบอุ่น สไตล์ย้อนวัย", "prompt": "the exact same product in a warm retro vintage set, film grain, faded warm palette, nostalgic props" },
+    "Halloween": { "th": "ต้อนรับเทศกาลฮาโลวีน", "prompt": "the exact same product in a tasteful Halloween set with pumpkins, candles and autumn leaves, warm orange and purple light" }
+  },
+  "aspect": {
+    "1:1": { "px": [1080, 1080], "gen": "Square 1:1 aspect ratio image." },
+    "4:5": { "px": [1080, 1350], "gen": "Tall vertical portrait orientation image with 3:4 aspect ratio." },
+    "2:3": { "px": [1080, 1620], "gen": "Tall vertical portrait orientation image with 2:3 aspect ratio." },
+    "9:16": { "px": [1080, 1920], "gen": "Tall vertical portrait orientation image with 2:3 aspect ratio." },
+    "5:4": { "px": [1350, 1080], "gen": "Wide horizontal landscape orientation image with 4:3 aspect ratio." },
+    "3:2": { "px": [1620, 1080], "gen": "Wide horizontal landscape orientation image with 3:2 aspect ratio." }
+  },
+  "text_zone": {
+    "bottom": "Keep the lower 38% of the frame calm and uncluttered (soft simple background) because a text panel will be placed there later.",
+    "top": "Keep the upper 32% of the frame calm and uncluttered (soft simple background) because a headline will be placed there later.",
+    "left": "Place the main subject in the right half; keep the left 45% calm and uncluttered because a text panel will be placed there later.",
+    "none": ""
+  },
+  "no_text": "Absolutely no text, no letters, no words, no numbers, no logos, no watermarks, no price tags anywhere in the image."
+}

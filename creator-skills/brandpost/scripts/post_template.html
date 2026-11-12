@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<!-- เทมเพลตวางข้อความไทยบนภาพโพสต์ render_post.py ฉีด window.POST แล้วรอ window.__READY -->
+<style>
+  :root { --s: 1; --pad: 64px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; }
+  #c { position: relative; overflow: hidden; }
+  #bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #person { position: absolute; right: 0; bottom: 0; height: 78%; z-index: 3; }
+  #logo { position: absolute; top: var(--pad); left: var(--pad); z-index: 5; display: flex; align-items: center; }
+  #logo.chip { background: #fff; padding: 14px 20px; border-radius: 18px; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  #logo img { display: block; max-height: calc(var(--H) * 0.075); max-width: calc(var(--W) * 0.28); }
+  #slide { position: absolute; top: var(--pad); right: var(--pad); z-index: 5; font-weight: 600;
+           font-size: calc(var(--W) * 0.03); padding: 8px 20px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; }
+  #panel { position: absolute; z-index: 4; display: flex; flex-direction: column; gap: calc(var(--W) * 0.022 * var(--s)); }
+  .eyebrow { align-self: flex-start; font-weight: 600; font-size: calc(var(--W) * 0.032 * var(--s));
+             padding: 6px 22px 8px; border-radius: 999px; line-height: 1.4; }
+  .headline { font-weight: 700; font-size: calc(var(--W) * 0.085 * var(--hs, 1) * var(--s)); line-height: 1.32; }
+  .nw { white-space: nowrap; }
+  .sub { font-weight: 400; font-size: calc(var(--W) * 0.038 * var(--s)); line-height: 1.5; opacity: .95; overflow-wrap: anywhere; }
+  .bullets { list-style: none; display: flex; flex-direction: column; gap: calc(var(--W) * 0.014 * var(--s)); }
+  .bullets li { font-size: calc(var(--W) * 0.038 * var(--s)); line-height: 1.45; padding-left: 1.1em; position: relative; overflow-wrap: anywhere; }
+  .bullets li::before { content: ""; position: absolute; left: 0; top: .55em; width: .48em; height: .48em; border-radius: 50%; background: var(--accent); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: calc(var(--W) * 0.008 * var(--s)); }
+  .price { font-weight: 700; font-size: calc(var(--W) * 0.05 * var(--s)); padding: 4px 26px 8px; border-radius: 16px; line-height: 1.35; }
+  .cta { font-weight: 600; font-size: calc(var(--W) * 0.034 * var(--s)); padding: 8px 28px 10px; border-radius: 999px; line-height: 1.4; border: 3px solid currentColor; }
+  /* layouts */
+  .L-bottom #panel { left: 0; right: 0; bottom: 0; padding: calc(var(--H) * 0.12) var(--pad) var(--pad); }
+  .L-top #panel { left: 0; right: 0; top: 0; padding: calc(var(--pad) * 1.3) var(--pad) calc(var(--H) * 0.08); }
+  .L-top #logo { top: auto; bottom: var(--pad); }
+  .L-left { --hs: .8; }
+  .L-left #panel { left: 0; top: 0; bottom: 0; width: 46%; padding: calc(var(--pad) * 2.6) var(--pad) var(--pad); justify-content: center; }
+  .L-none::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 55%; z-index: 2;
+                   background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); }
+  .L-left #bg { left: 46%; width: 54%; }
+  .L-card #panel { left: var(--pad); right: var(--pad); bottom: var(--pad); padding: calc(var(--pad) * 0.85); border-radius: 32px;
+                   background: #fff; color: #14161a; box-shadow: 0 18px 60px rgba(0,0,0,.28); border-top: 10px solid var(--primary); }
+  .L-none #panel { left: var(--pad); bottom: var(--pad); }
+  .has-person #panel { right: auto; width: 60%; }
+</style>
+</head>
+<body>
+<div id="c"></div>
+<script>
+/*__DATA__*/
+(async function () {
+  const P = window.POST, R = { overflow: false, scale: 1, fonts: [], missing: [] };
+  const [W, H] = P.px, c = document.getElementById('c');
+  const th = Object.assign({ primary: '#1f6feb', secondary: '#111318', accent: '#ffcc00', font: 'Kanit' }, P.theme || {});
+  const lum = h => { const n = parseInt(h.replace('#', '').padEnd(6, '0').slice(0, 6), 16);
+    const ch = [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); });
+    return .2126 * ch[0] + .7152 * ch[1] + .0722 * ch[2]; };
+  const on = h => lum(h) > .4 ? '#14161a' : '#ffffff';
+  const rgba = (h, a) => { const n = parseInt(h.replace('#', '').slice(0, 6), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  // ตัดบรรทัดเฉพาะที่ช่องว่างระหว่างวลีหรือที่ \n (ไม่ปล่อยให้ตัดกลางคำไทย) วลียาวเกิน max ตัวอักษรยอมให้ตัดข้างในได้
+  const lines = (s, max) => esc(s).split('\n').map(l => l.split(/ +/)
+    .map(w => (!max || [...w].length <= max) ? `<span class="nw">${w}</span>` : w).join(' ')).join('<br>');
+
+  // ฟอนต์: โหลดตรงจากไฟล์ ถ้าโหลดไม่ได้ให้รายงาน (Chromium จะใช้ฟอนต์สำรองเงียบ ๆ ถ้าไม่เช็ก)
+  for (const [w, f] of [[400, 'Regular'], [500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']]) {
+    try { const ff = new FontFace(th.font, `url("${P.fontdir}/${th.font}-${f}.ttf")`, { weight: String(w) }); await ff.load(); document.fonts.add(ff); R.fonts.push(w); }
+    catch (e) { R.fontError = `${th.font}-${f}.ttf`; }
+  }
+
+  const layout = P.layout || 'bottom';
+  c.className = 'L-' + layout + (P.person ? ' has-person' : '');
+  c.style.cssText = `width:${W}px;height:${H}px;font-family:"${th.font}",sans-serif;background:${th.secondary};`
+    + `--W:${W}px;--H:${H}px;--primary:${th.primary};--accent:${th.accent};`;
+  let html = '';
+  if (P.bg) html += `<img id="bg" src="${P.bg}" style="object-position:${P.bg_position || 'center'}">`;
+  if (P.person) html += `<img id="person" src="${P.person}">`;
+  if (P.logo) html += `<div id="logo" class="${P.logo_chip === false ? '' : 'chip'}"><img src="${P.logo}"></div>`;
+  if (P.slide) html += `<div id="slide">${esc(P.slide)}</div>`;
+  html += '<div id="panel">';
+  if (P.eyebrow) html += `<div class="eyebrow" style="background:${th.accent};color:${on(th.accent)}">${esc(P.eyebrow)}</div>`;
+  if (P.headline) html += `<div class="headline">${lines(P.headline)}</div>`;
+  if (P.sub) html += `<div class="sub">${lines(P.sub, 18)}</div>`;
+  if (P.bullets && P.bullets.length) html += '<ul class="bullets">' + P.bullets.map(b => `<li>${lines(b, 18)}</li>`).join('') + '</ul>';
+  if (P.price || P.cta) {
+    html += '<div class="row">';
+    if (P.price) html += `<div class="price" style="background:${th.accent};color:${on(th.accent)}">${esc(P.price)}</div>`;
+    if (P.cta) html += `<div class="cta">${esc(P.cta)}</div>`;
+    html += '</div>';
+  }
+  html += '</div>';
+  c.innerHTML = html;
+
+  const panel = document.getElementById('panel');
+  if (layout === 'bottom' || layout === 'top') {
+    const dir = layout === 'bottom' ? 'to top' : 'to bottom';
+    panel.style.background = `linear-gradient(${dir}, ${rgba(th.secondary, .94)} 0%, ${rgba(th.secondary, .82)} 55%, ${rgba(th.secondary, 0)} 100%)`;
+    panel.style.color = on(th.secondary);
+  } else if (layout === 'left') { panel.style.background = th.primary; panel.style.color = on(th.primary); }
+  else if (layout === 'none') { panel.style.color = '#fff'; panel.style.textShadow = '0 2px 12px rgba(0,0,0,.55)'; }
+  const cta = panel.querySelector('.cta'); if (cta && layout === 'card') cta.style.color = th.primary;
+
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  R.missing = [...document.images].filter(i => !i.naturalWidth).map(i => i.getAttribute('src'));
+
+  // ย่อทั้งชุดจนพอดีกรอบ: bottom/top ไม่เกินครึ่งภาพ, left/card ไม่ล้นแผง
+  const limit = { bottom: H * .56, top: H * .56, left: H, card: H * .6, none: H * .5 }[layout];
+  const fits = () => panel.scrollHeight <= limit + 1 && panel.scrollWidth <= panel.clientWidth + 1
+    && [...panel.children].every(el => el.scrollWidth <= el.clientWidth + 1);
+  let s = 1;
+  while (s > .55) { c.style.setProperty('--s', s); await document.fonts.ready; if (fits()) break; s = +(s - .04).toFixed(2); }
+  R.scale = s; R.overflow = !fits();
+  const pr = panel.getBoundingClientRect();
+  if (pr.top < -1 || pr.bottom > H + 1) R.overflow = true;
+  window.__REPORT = R; window.__READY = true;
+})();
+</script>
+</body>
+</html>
